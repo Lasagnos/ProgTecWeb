@@ -3,7 +3,6 @@ import axios from 'axios';
 
 import Footer from './partials/footer';
 import Header from './partials/header';
-import './compose.css';
 
 const ComposeEvent = () => {
   const [event, setEvent] = useState({
