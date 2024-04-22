@@ -13,7 +13,17 @@ const eventSchema = new mongoose.Schema({
 
     frequency: { type: String, enum: ['none', 'daily', 'daily_ferial', 'weekly', 'monthly', 'monthly_weekday', 'yearly', 'custom'], default: 'none' },
     stopRecurrence: { type: String, enum: ['never', 'date', 'number'], default: 'never' },
-
+    stopDate: { 
+        type: Date, 
+        required: function() { return this.stopRecurrence === 'date'; },    // Required if stopRecurrence is 'date'
+        default: null 
+    },
+    stopNumber: { 
+        type: Number, 
+        required: function() { return this.stopRecurrence === 'number'; },  // Required if stopRecurrence is 'number'
+        default: null 
+    },
+    
     completed: { type: Boolean, default: false },
 });
 const Event = mongoose.model("Event", eventSchema);

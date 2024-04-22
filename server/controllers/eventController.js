@@ -29,7 +29,7 @@ exports.createEvent = async (req, res) => {
     const newEvent = new Event(req.body);
     try {
         await newEvent.save();
-        res.status(201).json(newEvent);
+        res.status(201).json(newEvent); // Return the new event
     } catch (error) {
         console.error(error);
         res.status(500).send('Error saving event');
@@ -55,7 +55,7 @@ exports.deleteEvent = async (req, res) => {
         if (!result) {
             return res.status(404).send('Event not found');
         }
-        res.status(204).send();
+        res.status(204).send('Event deleted'); // 204: No Content
     } catch (error) {
         console.error(error);
         res.status(500).send('Error deleting event');
