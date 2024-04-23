@@ -1,27 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 import Footer from './partials/footer';
 import Header from './partials/header';
 
-const ComposeEvent = () => {
+const Compose = () => {
+  const { id } = useParams(); // Get the ID from the URL to edit an existing event
   const [event, setEvent] = useState({
     title: '',
     description: '',
     location: '',
     allDay: false,
-
-    startDate: new Date().toISOString().split('T')[0], // get current date in YYYY-MM-DD format
+  
+    startDate: new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())).toISOString().split('T')[0],
     startTime: '00:00',   // in the future, change to current time               
-    endDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())).toISOString().split('T')[0],
     endTime: '00:00',     // in the future, change to current time + 1 hour
-
+  
     frequency: 'none',
     stopRecurrence: 'never',
     stopDate: null,
     stopNumber: null,
     completed: false,
   });
+
+  // Fetch the event data when the component is mounted
+  useEffect(() => {
+    const fetchEventData = async () => {
+      if (id) { // Only fetch data if there is an ID in the URL (editing an event)
+        try {
+          const response = await axios.get(`http://localhost:5000/event/${id}`);
+          const eventData = response.data;
+  
+          // Check for undefined properties and set them to their default values
+          for (let key in event) {
+            if (eventData[key] === undefined) {
+              eventData[key] = event[key];
+            }
+          }
+  
+          // Convert the start and end dates to the format used in the form
+          if (eventData.start) {
+            const startDate = new Date(eventData.start);
+            eventData.startDate = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate())).toISOString().split('T')[0];
+            eventData.startTime = startDate.toTimeString().split(' ')[0].substring(0, 5);
+          }
+          if (eventData.end) {
+            const endDate = new Date(eventData.end);
+            eventData.endDate = new Date(Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())).toISOString().split('T')[0];
+            eventData.endTime = endDate.toTimeString().split(' ')[0].substring(0, 5);
+          }
+  
+          setEvent(eventData);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+  
+    fetchEventData();
+  }, [id]); // The ID is a dependency, so the effect will run whenever it changes
+
 
   const handleChange = (e) => {
     let value = e.target.type === 'checkbox' ? e.target.checked : e.target.value; // Handle checkbox 'off' inputs
@@ -30,19 +70,21 @@ const ComposeEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent the default form submit action
-    
-    // Convert date and time strings to Date objects
-    const start = event.allDay ? new Date(`${event.startDate}T00:00`) : new Date(`${event.startDate}T${event.startTime}`);
-    const end = event.allDay ? new Date(`${event.endDate}T23:59`) : new Date(`${event.endDate}T${event.endTime}`);
   
-    // Check if end is after start
-    if (end <= start) {
-      alert('The end of the event must be after its start!');
+    // Validate and prepare data
+    const validatedEvent = validateAndPrepareData(event);
+  
+    if (!validatedEvent) {
       return;
     }
   
     try {
-      const response = await axios.post('http://localhost:5000/compose', { ...event, start, end });
+      let response;
+      if (id) { // If there is an ID, update the existing event
+        response = await axios.put(`http://localhost:5000/event/${id}`, validatedEvent);
+      } else { // Otherwise, create a new event
+        response = await axios.post('http://localhost:5000/compose', validatedEvent);
+      }
       if (response.status === 200) {
         window.location = '/';  // Redirect to the home page if the operation was successful
       }
@@ -50,6 +92,40 @@ const ComposeEvent = () => {
       console.error(error);
     }
   };
+
+  const validateAndPrepareData = (event) => {
+    let validatedEvent = { ...event };
+  
+    // Fuse date and time into a single Date object
+    const start = validatedEvent.allDay ? new Date(Date.UTC(validatedEvent.startDate.split('-')[0], validatedEvent.startDate.split('-')[1] - 1, validatedEvent.startDate.split('-')[2], 0, 0)) : new Date(Date.UTC(validatedEvent.startDate.split('-')[0], validatedEvent.startDate.split('-')[1] - 1, validatedEvent.startDate.split('-')[2], validatedEvent.startTime.split(':')[0], validatedEvent.startTime.split(':')[1]));
+    const end = validatedEvent.allDay ? new Date(Date.UTC(validatedEvent.endDate.split('-')[0], validatedEvent.endDate.split('-')[1] - 1, validatedEvent.endDate.split('-')[2], 23, 59)) : new Date(Date.UTC(validatedEvent.endDate.split('-')[0], validatedEvent.endDate.split('-')[1] - 1, validatedEvent.endDate.split('-')[2], validatedEvent.endTime.split(':')[0], validatedEvent.endTime.split(':')[1]));
+  
+    // Check if end is after start
+    if (end <= start) {
+      alert('The end of the event must be after its start!');
+      return null;
+    }
+  
+    // Value preparation for stopRecurrence, stopDate, and stopNumber.
+    // Not strictly necessary, but it makes the data consistent.
+    if (validatedEvent.frequency === 'none' && validatedEvent.stopRecurrence !== 'never') {
+      validatedEvent.stopRecurrence = 'never';
+    }
+    if (validatedEvent.stopRecurrence === 'never') {
+      validatedEvent.stopDate = null;
+      validatedEvent.stopNumber = null;
+    }
+    if (validatedEvent.stopRecurrence === 'date') {
+      validatedEvent.stopNumber = null;
+      validatedEvent.stopDate = new Date(`${validatedEvent.stopDate}T23:59`);
+    }
+    if (validatedEvent.stopRecurrence === 'number') {
+      validatedEvent.stopDate = null;
+    }
+  
+    return { ...validatedEvent, start, end };
+  };
+
 
   return (
     <>
@@ -137,4 +213,4 @@ const ComposeEvent = () => {
   );
 };
 
-export default ComposeEvent;
+export default Compose;

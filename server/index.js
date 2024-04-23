@@ -25,7 +25,7 @@ mongoose.connect(mongoDBUri, { useNewUrlParser: true, useUnifiedTopology: true }
 
 // IMPORT ROUTES
 const eventRoutes = require('./routes/eventRoutes');
-app.use('/events', eventRoutes);
+app.use('/event', eventRoutes);
 // IMPORT MODELS
 const Event = require('./models/Event');
 
@@ -42,8 +42,7 @@ const contactContent = "SOSTITUIRE CON NOTE O POMODORO";
 
 // Compose route to handle new Events: saves them to the database and redirects to the home page
 app.post("/compose", async (req, res) => {
-    console.log('Yo');
-    console.log('Received new event: ', req.body);
+    console.log('Received event: ', req.body);
     const newEvent = new Event({
         title: req.body.title,
         description: req.body.description,
