@@ -6,7 +6,7 @@ import Event from './event';
 const Home = ({ content }) => {
   const [events, setEvents] = useState([]);
 
-  useEffect(() => {
+  useEffect(() => { // Fetch all events in the beginning
     fetch('http://localhost:5000/event')
       .then(response => response.json())
       .then(data => setEvents(data))
