@@ -1,73 +1,102 @@
+require('dotenv').config({ path: '../.env' }); // Load environment variables. Used for security
 const express = require("express");
 const app = express();  //Express App
 const mongoose = require("mongoose");   // MongoDB interaction
 const path = require('path');   // Handles file paths
 const _ = require("lodash");    // Utility library
 const cors = require('cors');    // Cross-origin resource sharing middleware
-//const { logRequest, errorHandler, checkAuthentication } = require('./customMiddleware');
-app.use(cors());
+const passport = require("passport"); // Authentication middleware
+const LocalStrategy = require("passport-local").Strategy; // Local authentication strategy for Passport
+const bcrypt = require("bcrypt"); // Password hashing library
+const session = require('express-session'); // Session middleware for Express
+const crypto = require('crypto'); // Cryptographic library for generating random strings (built-in to Node.js)
 
-// // Set the view engine to EJS
-// app.set("view engine", "ejs");
 
-// Add middleware for parsing JSON and urlencoded data and populating `req.body`
+/* MIDDLEWARE */
+
+app.use(cors());  // Enable CORS
+
+// Add middleware for parsing JSON, urlencoded data and serving static files
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(__dirname, 'client/public')));
+
+//const { errorHandler } = require('./customMiddleware');
+
+// Generate a secret key for the session
+// const secretKey = crypto.randomBytes(64).toString('hex');
+// console.log(secretKey);
+
+// Enable express-session, a session middleware for Express
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+// Passport configuration
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    const user = await User.findOne({ username });
+    if (!user || !(await bcrypt.compare(password, user.password))) {  // Compare the password with the hashed password
+      return done(null, false, { message: "Incorrect username or password." });
+    }
+    return done(null, user);
+  })
+);
+// User serialization and deserialization
+passport.serializeUser((user, done) => {
+  done(null, user._id);
+});
+passport.deserializeUser(async (id, done) => {
+  const user = await User.findById(id);
+  done(null, user);
+});
 
 
-// Database connection
-const mongoDBUri = "mongodb+srv://Anglos:gelsomino02@cluster0.hxn6lak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-mongoose.connect(mongoDBUri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+/* DATABASE CONNECTION */
+
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 //const db = mongoose.connection;
 
 
-// IMPORT ROUTES
+
+/* IMPORT ROUTES */
 const eventRoutes = require('./routes/eventRoutes');
 app.use('/event', eventRoutes);
-// IMPORT MODELS
+const authRoutes = require('./routes/authRoutes');
+app.use('/', authRoutes);
+
+/* IMPORT MODELS */
 const Event = require('./models/Event');
+const User = require('./models/User');
+const Note = require('./models/Note');
+const Todo = require('./models/Todo');
 
 
-// Content variables
-const homeContent = "CALENDARIO";
-const aboutContent = "SOSTITUIRE CON NOTE O POMODORO";
-const contactContent = "SOSTITUIRE CON NOTE O POMODORO";
+/* ALL ROUTES */
 
-
-// ALL ROUTES
-
-// --- Generic routes --- //    Ricordarsi di mettere route non dinamiche PRIMA di una dinamica ;)
-
-// Compose route to handle new Events: saves them to the database and redirects to the home page
-app.post("/compose", async (req, res) => {
-    console.log('Received event: ', req.body);
-    const newEvent = new Event({
-        title: req.body.title,
-        description: req.body.description,
-        location: req.body.location,
-
-        allDay: req.body.allDay,
-        start: req.body.start,
-        end: req.body.end,
-
-        frequency: req.body.frequency,
-        stopRecurrence: req.body.stopRecurrence,
-        stopDate: req.body.stopDate,
-        stopNumber: req.body.stopNumber,
-        
-        completed: req.body.completed
-    });
-    try {
-        await newEvent.save();
-        res.status(200).send('Event saved');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error saving new event');
-    }
+// User registration route
+app.post('/register', async (req, res) => {
+  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+  const user = new User({
+    username: req.body.username,
+    password: hashedPassword,
+  });
+  await user.save();
+  res.redirect('/login');
 });
 
+// User login route
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login',
+  failureFlash: true,
+}));
 
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file
 app.get('*', (req, res) => {
@@ -76,7 +105,7 @@ app.get('*', (req, res) => {
 
 
 
-// Start the server
+/* Start the server */
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
