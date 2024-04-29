@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 const Event = ({ event, onEventUpdate, onEventDelete }) => {
   const navigate = useNavigate(); //'hook' to navigate to compose and edit event
 
-  const handleCompletedChange = async (e) => {
+  const handleCompletedChange = async (e) => {  // Toggle the completed property
     const updatedEvent = { ...event, completed: !event.completed };
-    const response = await axios.put(`http://localhost:5000/event/${event._id}`, updatedEvent);
+    const response = await axios.put(`http://localhost:5000/api/event/${event._id}`, updatedEvent);
     if (response.status === 200) {
       onEventUpdate(updatedEvent);
     }
@@ -18,7 +18,7 @@ const Event = ({ event, onEventUpdate, onEventDelete }) => {
   };
 
   const handleDeleteClick = async () => {
-    const response = await axios.delete(`http://localhost:5000/event/${event._id}`);
+    const response = await axios.delete(`http://localhost:5000/api/event/${event._id}`);
     if (response.status === 204) {  // 204: No Content
       onEventDelete(event._id);
     }

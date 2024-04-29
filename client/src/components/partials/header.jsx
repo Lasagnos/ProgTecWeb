@@ -21,6 +21,10 @@ const Header = () => {
             <li className="nav-item">
               <a className="nav-link" href="/compose">Add New Event</a>
             </li>
+
+            <li className="nav-item">
+              <a className="nav-link" href="/todos">Todos</a>
+            </li>
           </ul>
         </div>
 

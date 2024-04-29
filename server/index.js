@@ -67,10 +67,11 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
 
 /* IMPORT ROUTES */
 const eventRoutes = require('./routes/eventRoutes');
-app.use('/event', eventRoutes);
+app.use('/api/event', eventRoutes);
 const authRoutes = require('./routes/authRoutes');
-app.use('/', authRoutes);
-
+app.use('/api', authRoutes);
+const todosRoutes = require('./routes/todosRoutes');
+app.use('/api/todos', todosRoutes);
 /* IMPORT MODELS */
 const Event = require('./models/Event');
 const User = require('./models/User');
@@ -79,24 +80,6 @@ const Todo = require('./models/Todo');
 
 
 /* ALL ROUTES */
-
-// User registration route
-app.post('/register', async (req, res) => {
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
-  const user = new User({
-    username: req.body.username,
-    password: hashedPassword,
-  });
-  await user.save();
-  res.redirect('/login');
-});
-
-// User login route
-app.post('/login', passport.authenticate('local', {
-  successRedirect: '/',
-  failureRedirect: '/login',
-  failureFlash: true,
-}));
 
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file
 app.get('*', (req, res) => {

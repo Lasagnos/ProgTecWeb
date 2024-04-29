@@ -26,3 +26,22 @@ exports.logout = (req, res) => {
     req.logout();   // Logout the user
     res.redirect('/login');
 };
+
+
+// // User registration route
+// app.post('/register', async (req, res) => {
+//   const hashedPassword = await bcrypt.hash(req.body.password, 10);
+//   const user = new User({
+//     username: req.body.username,
+//     password: hashedPassword,
+//   });
+//   await user.save();
+//   res.redirect('/login');
+// });
+
+// // User login route
+// app.post('/login', passport.authenticate('local', {
+//   successRedirect: '/',
+//   failureRedirect: '/login',
+//   failureFlash: true,
+// }));

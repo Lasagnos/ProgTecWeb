@@ -5,9 +5,11 @@ const mongoose = require('mongoose');
 const noteSchema = new mongoose.Schema({
     heading: String,
     content: String,
-    author: String,
-    date: { type: Date, default: Date.now },
-    place: String,
+
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    creationDate: { type: Date, default: Date.now },
+    lastEditDate: { type: Date, default: Date.now },
+
     tags: {
         type: [String],
         validate: {

@@ -20,39 +20,46 @@ const Compose = () => {
   
     frequency: 'none',
     stopRecurrence: 'never',
-    stopDate: null,
-    stopNumber: null,
+    stopDate: '',
+    stopNumber: '',
     completed: false,
   });
 
   // Fetch the event data when the component is mounted
   useEffect(() => {
     const fetchEventData = async () => {
-      if (id) { // Only fetch data if there is an ID in the URL (editing an event)
+      if (id) {
         try {
-          const response = await axios.get(`http://localhost:5000/event/${id}`);
+          const response = await axios.get(`http://localhost:5000/api/event/${id}`);
           const eventData = response.data;
   
-          // Check for undefined properties and set them to their default values
-          for (let key in event) {
-            if (eventData[key] === undefined) {
-              eventData[key] = event[key];
+          setEvent(prevEvent => {
+            // Check for undefined properties and set them to their default values
+            for (let key in prevEvent) {
+              if (eventData[key] === undefined) {
+                eventData[key] = prevEvent[key];
+              }
             }
-          }
   
-          // Convert the start and end dates to the format used in the form
-          if (eventData.start) {
-            const startDate = new Date(eventData.start);
-            eventData.startDate = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate())).toISOString().split('T')[0];
-            eventData.startTime = startDate.toTimeString().split(' ')[0].substring(0, 5);
-          }
-          if (eventData.end) {
-            const endDate = new Date(eventData.end);
-            eventData.endDate = new Date(Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())).toISOString().split('T')[0];
-            eventData.endTime = endDate.toTimeString().split(' ')[0].substring(0, 5);
-          }
+            // Convert the start and end dates, along the stopDate to the format used in the form
+            if (eventData.start) {
+              const startDate = new Date(eventData.start);
+              eventData.startDate = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate())).toISOString().split('T')[0];
+              eventData.startTime = startDate.toTimeString().split(' ')[0].substring(0, 5);
+            }
+            if (eventData.end) {
+              const endDate = new Date(eventData.end);
+              eventData.endDate = new Date(Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())).toISOString().split('T')[0];
+              eventData.endTime = endDate.toTimeString().split(' ')[0].substring(0, 5);
+            }
+            if (eventData.stopDate) {
+              const stopDate = new Date(eventData.stopDate);
+              eventData.stopDate = new Date(Date.UTC(stopDate.getFullYear(), stopDate.getMonth(), stopDate.getDate())).toISOString().split('T')[0];
+              eventData.stopTime = stopDate.toTimeString().split(' ')[0].substring(0, 5);
+            }
   
-          setEvent(eventData);
+            return eventData;
+          });
         } catch (error) {
           console.error(error);
         }
@@ -81,9 +88,9 @@ const Compose = () => {
     try {
       let response;
       if (id) { // If there is an ID, update the existing event
-        response = await axios.put(`http://localhost:5000/event/${id}`, validatedEvent);
+        response = await axios.put(`http://localhost:5000/api/event/${id}`, validatedEvent);
       } else { // Otherwise, create a new event
-        response = await axios.post('http://localhost:5000/compose', validatedEvent);
+        response = await axios.post('http://localhost:5000/api/event/compose', validatedEvent);
       }
       if (response.status === 200) {
         window.location = '/';  // Redirect to the home page if the operation was successful
