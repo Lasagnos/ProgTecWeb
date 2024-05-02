@@ -6,7 +6,6 @@ const noteSchema = new mongoose.Schema({
     heading: String,
     content: String,
 
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     creationDate: { type: Date, default: Date.now },
     lastEditDate: { type: Date, default: Date.now },
 
@@ -17,6 +16,12 @@ const noteSchema = new mongoose.Schema({
             message: 'Tutti i tag devono essere stringhe non vuote',
         },
     },
+
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    }
 });
 const Note = mongoose.model("Note", noteSchema);
 

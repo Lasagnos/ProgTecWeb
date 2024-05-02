@@ -23,8 +23,12 @@ const eventSchema = new mongoose.Schema({
         required: function() { return this.stopRecurrence === 'number'; },  // Required if stopRecurrence is 'number'
         default: null 
     },
-    
-    completed: { type: Boolean, default: false },
+
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    }
 });
 const Event = mongoose.model("Event", eventSchema);
 

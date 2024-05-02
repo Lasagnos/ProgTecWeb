@@ -20,17 +20,22 @@ exports.getTodo = (req, res) => {
 }
 
 // Create a new todo, POST
-exports.createTodo = (req, res) => {
-  const { todo, dueDate } = req.body;
+exports.createTodo = async (req, res) => {
+  const { todo, dueDate, user } = req.body;
 
-  const newTodo = new Todo({
-    todo,
-    dueDate,
-  });
+  try {
+      const newTodo = new Todo({
+          todo,
+          dueDate,
+          user: user || req.user._id, // Use the user ID from the request, or fall back to the logged-in user
+      });
 
-  newTodo.save()
-    .then(todo => res.json(todo))
-    .catch(err => res.status(500).json({ error: err.message }));
+      const savedTodo = await newTodo.save();
+
+      res.json(savedTodo);
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
 };
 
 // Update a todo, PUT

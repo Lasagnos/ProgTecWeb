@@ -5,6 +5,7 @@ import Footer from './partials/footer';
 import Header from './partials/header';
 
 function Todos() {
+  axios.defaults.withCredentials = true;
   const [todos, setTodos] = useState([]);
   const [todo, setTodo] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -18,16 +19,16 @@ function Todos() {
   const handleSubmit = (event) => { // Create a new todo
     event.preventDefault();
 
-    axios.post('http://localhost:5000/api/todos', { todo, dueDate }) // api?
+    axios.post('http://localhost:5000/api/todos', { todo, dueDate })
       .then(response => {
         setTodos([...todos, response.data]);
         setTodo('');
         setDueDate('');
       })
-      .catch(error => console.error('Error creating todo:', error));
+      .catch(error => console.error('Error creating todo:', error.response));
   };
 
-  const handleDelete = (id) => {
+  const handleClear = (id) => {
     axios.delete(`http://localhost:5000/api/todos/${id}`)
       .then(() => {
         setTodos(todos.filter(todo => todo._id !== id));
@@ -55,10 +56,9 @@ function Todos() {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
   
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1); // Get the date of the next day
     const threeDaysFromNow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3); // Get the date of three days from now
   
-    if (dueDate < tomorrow) {  // Overdue todos are black
+    if (dueDate < now) {  // Overdue todos are black
       return 'bg-dark';
     } else if (dueDate < threeDaysFromNow) {  // Todos pending soon (3 days) are yellow
       return 'bg-warning';
@@ -66,6 +66,15 @@ function Todos() {
   
     return '';
   };
+
+  const handleClearAll = () => {
+    Promise.all(todos.map(todo => axios.delete(`http://localhost:5000/api/todos/${todo._id}`)))
+      .then(() => {
+        setTodos([]);
+      })
+      .catch(error => console.error('Error deleting all todos:', error));
+  };
+
 
   return (
     <>
@@ -90,7 +99,7 @@ function Todos() {
       </div>
     </form>
 
-      <h2>Current Todos</h2>
+      <h2>Current Todos <button type="button" className="btn btn-danger ms-2" onClick={handleClearAll}>Clear All</button></h2>
 
       {todos.sort((a, b) => {
         // Sort by completion
@@ -113,7 +122,7 @@ function Todos() {
                 <div className="d-flex align-items-center">
                   <input type="checkbox" checked={todo.completed} onChange={e => handleCheckboxChange(e, todo._id)} />
                   <span className="ms-2">Completed</span>
-                  <button type="button" className="btn btn-danger ms-2" onClick={() => handleDelete(todo._id)}>Delete</button>
+                  <button type="button" className="btn btn-danger ms-2" onClick={() => handleClear(todo._id)}>Clear</button>
                 </div>
               </div>
             </div>

@@ -7,4 +7,11 @@ function errorHandler(err, req, res, next) {
     res.status(500).send('Internal Server Error');
 }
 
-module.exports = { errorHandler };
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    return res.status(401).json({ error: 'Not authenticated' });
+}
+
+module.exports = { errorHandler, ensureAuthenticated };

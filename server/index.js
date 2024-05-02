@@ -9,12 +9,13 @@ const passport = require("passport"); // Authentication middleware
 const LocalStrategy = require("passport-local").Strategy; // Local authentication strategy for Passport
 const bcrypt = require("bcrypt"); // Password hashing library
 const session = require('express-session'); // Session middleware for Express
+const MongoDBStore = require('connect-mongodb-session')(session); // MongoDB session store
 const crypto = require('crypto'); // Cryptographic library for generating random strings (built-in to Node.js)
 
 
 /* MIDDLEWARE */
 
-app.use(cors());  // Enable CORS
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 // Add middleware for parsing JSON, urlencoded data and serving static files
 app.use(express.json());
@@ -27,11 +28,22 @@ app.use(express.static(path.join(__dirname, 'client/public')));
 // const secretKey = crypto.randomBytes(64).toString('hex');
 // console.log(secretKey);
 
+// Create a new MongoDBStore instance for storing sessions in MongoDB
+const store = new MongoDBStore({
+  uri: process.env.MONGODB_URI,
+  collection: 'mySessions'
+});
+
 // Enable express-session, a session middleware for Express
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
+  cookie: {
+    secure: false,
+    maxAge: 1000 * 60 * 60 * 24 // 1 day
+  },
+  store: store
 }));
 
 // Passport middleware
@@ -56,7 +68,10 @@ passport.deserializeUser(async (id, done) => {
   done(null, user);
 });
 
-
+// app.use((req, res, next) => {  // check if user is logged in in every request
+//   console.log(req.user);
+//   next();
+// });
 
 /* DATABASE CONNECTION */
 
@@ -65,6 +80,11 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
 
 
 
+/* IMPORT MODELS */
+const Event = require('./models/Event');
+const User = require('./models/User');
+const Note = require('./models/Note');
+const Todo = require('./models/Todo');
 /* IMPORT ROUTES */
 const eventRoutes = require('./routes/eventRoutes');
 app.use('/api/event', eventRoutes);
@@ -72,19 +92,19 @@ const authRoutes = require('./routes/authRoutes');
 app.use('/api', authRoutes);
 const todosRoutes = require('./routes/todosRoutes');
 app.use('/api/todos', todosRoutes);
-/* IMPORT MODELS */
-const Event = require('./models/Event');
-const User = require('./models/User');
-const Note = require('./models/Note');
-const Todo = require('./models/Todo');
+
 
 
 /* ALL ROUTES */
+app.get('/api/test', (req, res) => {
+  res.json({ user: req.user });
+});
 
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname+'/client/build/index.html'));
 });
+
 
 
 
