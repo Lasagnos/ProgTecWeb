@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import Footer from './partials/footer';
 import Header from './partials/header';
 import Event from './event';
 
 const Home = ({ content }) => {
+  axios.defaults.withCredentials = true;
   const [events, setEvents] = useState([]);
 
-  useEffect(() => { // Fetch all events in the beginning
-    fetch('http://localhost:5000/api/event')
-      .then(response => response.json())
-      .then(data => setEvents(data))
+  useEffect(() => { // Fetch the events from the server
+    axios.get('http://localhost:5000/api/event')
+      .then(response => {
+        const data = response.data;
+        Array.isArray(data) ? setEvents(data) : setEvents([]);  // set events if an array is received
+      })
       .catch(error => console.error('Error:', error));
   }, []);
 
   const handleEventUpdate = (updatedEvent) => {
+    // Update the event in the state by replacing the event by its id
     setEvents(events.map(event => event._id === updatedEvent._id ? updatedEvent : event));
   };
 
   const handleEventDelete = (deletedEventId) => {
+    // Delete the event from the state by filtering out the event through its id
     setEvents(events.filter(event => event._id !== deletedEventId));
   };
 

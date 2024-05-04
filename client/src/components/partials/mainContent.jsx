@@ -13,4 +13,6 @@ export default MainContent;
 /*
 The MainContent component is a functional component that gives a padding-bottom of 60px to its children.
 This is to ensure that the fixed footer does not overlap the content.
+
+UNUSED!!!!! Have to work on how to properly fix the footer
 */

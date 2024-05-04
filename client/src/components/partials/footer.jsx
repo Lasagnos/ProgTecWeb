@@ -1,5 +1,8 @@
 import React from 'react';
 
+// In the future, this component will display the time machine
+// and all dates and times will be based on it instead of the local time
+
 const Footer = () => {
   return (
     <div className="footer bg-light d-flex justify-content-center align-items-center p-3">

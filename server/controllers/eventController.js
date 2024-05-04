@@ -1,91 +1,61 @@
 const Event = require('../models/Event');
+const { checkOwnership } = require('../middleware/customMiddlewares');
 
 // Get all events, GET
-exports.getEvents = async (req, res) => {
-    try {
-        const events = await Event.find({});
-        res.json(events);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error fetching events');
-    }
-};
+exports.getEvents = (req, res) => {
+    Event.find({ user: req.user._id })  // Fetch all events of the authenticated user
+        .then(events => res.json(events))
+        .catch(err => res.status(500).json({ error: err.message }));
+  };
 
 // Get a single event, GET
-exports.getEvent = async (req, res) => {
-    try {
-        const event = await Event.findById(req.params.id);
-        if (!event) {
-            return res.status(404).send('Event not found');
-        }
-        res.json(event);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error fetching event');
-    }
-};
-
-// Create a new event, POST
-exports.createEvent = async (req, res) => {
-    const newEvent = new Event(req.body);
-    try {
-        await newEvent.save();
-        res.status(201).json(newEvent); // Return the new event
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error saving event');
-    }
-};
+exports.getEvent = (req, res) => {
+    Event.findById(req.params.id)   // Fetch a single event by its ID
+        .then(event => {
+            if (!event) {
+                return res.status(404).json({ message: 'Event not found' });
+            }
+            res.json(event);    // Send the event in the response
+        })
+        .catch(err => res.status(500).json({ error: err.message }));
+}
 
 // Update an event, PUT
-exports.updateEvent = async (req, res) => {
-    try {
-        const updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedEvent) {
-            return res.status(404).send('Event not found');
-        }
-        res.json(updatedEvent);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error updating event');
-    }
-};
+exports.updateEvent = (req, res) => {
+    Event.findByIdAndUpdate(req.params.id, req.body, { new: true }) // Find the event by ID and update it. Return the new, modified event
+        .then(event => {
+            if (!event) {
+                return res.status(404).json({ message: 'Event not found' });
+            }
+            res.json(event);    // Send the new, modified event in the response
+        })
+        .catch(err => res.status(500).json({ error: err.message }));
+}
 
 // Delete an event, DELETE
-exports.deleteEvent = async (req, res) => {
-    try {
-        const result = await Event.findByIdAndDelete(req.params.id);
-        if (!result) {
-            return res.status(404).send('Event not found');
-        }
-        res.status(204).send('Event deleted'); // 204: No Content
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error deleting event');
-    }
+exports.deleteEvent = (req, res) => {
+    Event.findByIdAndDelete(req.params.id)  // Find the event by ID and delete it
+        .then(event => {
+            if (!event) {
+                return res.status(404).json({ message: 'Event not found' });
+            }
+            res.json(event);    // Send the deleted event in the response
+        })
+        .catch(err => res.status(500).json({ error: err.message }));
 };
 
-// Compose route to handle new Events: saves them to the database and redirects to the home page, POST
+// Compose route used to create new events
+// Create a new event, POST
 exports.createEvent = async (req, res) => {
-    console.log('Received event: ', req.body);
-    const newEvent = new Event({
-        title: req.body.title,
-        description: req.body.description,
-        location: req.body.location,
-        allDay: req.body.allDay,
-        start: req.body.start,
-        end: req.body.end,
-        frequency: req.body.frequency,
-        stopRecurrence: req.body.stopRecurrence,
-        stopDate: req.body.stopDate,
-        stopNumber: req.body.stopNumber,
-        completed: req.body.completed
-    });
     try {
-        await newEvent.save();
-        res.status(200).send('Event saved');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error saving new event');
+      const newEvent = new Event({
+        ...req.body,    // the rest is all the same
+        user: req.user._id, //  Set the user ID of the authenticated user
+      });
+      const savedEvent = await newEvent.save();
+  
+      res.json(savedEvent); // Send the saved event in the response
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-};
+  };

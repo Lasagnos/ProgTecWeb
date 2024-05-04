@@ -15,3 +15,10 @@ function TestButton() {
 }
 
 export default TestButton;
+
+
+
+/*
+The TestButton component is a functional component that tests the authentication of the user (sends a GET request).
+DEBUG ONLY, currently unused.
+*/

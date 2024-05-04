@@ -15,16 +15,15 @@ const crypto = require('crypto'); // Cryptographic library for generating random
 
 /* MIDDLEWARE */
 
+// Enable CORS for all routes, and allow credentials (cookies)
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 // Add middleware for parsing JSON, urlencoded data and serving static files
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'client/public')));
+app.use(express.static(path.join(__dirname, '../client/public')));
 
-//const { errorHandler } = require('./customMiddleware');
-
-// Generate a secret key for the session
+// Generate a secret key for the session (one-time only, currently stored in .env file)
 // const secretKey = crypto.randomBytes(64).toString('hex');
 // console.log(secretKey);
 
@@ -40,7 +39,8 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   cookie: {
-    secure: false,
+    secure: false,  // problematic!
+    sameSite: 'None', // problematic!
     maxAge: 1000 * 60 * 60 * 24 // 1 day
   },
   store: store
@@ -59,7 +59,7 @@ passport.use(
     return done(null, user);
   })
 );
-// User serialization and deserialization
+// User serialization and deserialization. Used to store the user in the session
 passport.serializeUser((user, done) => {
   done(null, user._id);
 });
@@ -68,14 +68,12 @@ passport.deserializeUser(async (id, done) => {
   done(null, user);
 });
 
-// app.use((req, res, next) => {  // check if user is logged in in every request
-//   console.log(req.user);
-//   next();
-// });
+// Custom middleware to ensure that a user is authenticated. Used in 'private' routes
+const { ensureAuthenticated } = require('./middleware/customMiddlewares');
+
 
 /* DATABASE CONNECTION */
-
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }); // Properties to use new node.js engines
 //const db = mongoose.connection;
 
 
@@ -86,24 +84,25 @@ const User = require('./models/User');
 const Note = require('./models/Note');
 const Todo = require('./models/Todo');
 /* IMPORT ROUTES */
-const eventRoutes = require('./routes/eventRoutes');
-app.use('/api/event', eventRoutes);
 const authRoutes = require('./routes/authRoutes');
 app.use('/api', authRoutes);
+const eventRoutes = require('./routes/eventRoutes');
+app.use('/api/event', ensureAuthenticated, eventRoutes);
 const todosRoutes = require('./routes/todosRoutes');
-app.use('/api/todos', todosRoutes);
+app.use('/api/todos', ensureAuthenticated, todosRoutes);
 
 
 
-/* ALL ROUTES */
-app.get('/api/test', (req, res) => {
-  res.json({ user: req.user });
-});
+/* ALL ROUTES */  // Mostly debugs, try to move the real ones all to routes folder
+
+// app.get('/api/test', (req, res) => {   // DEBUG
+//   res.json({ user: req.user });
+// });
 
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname+'/client/build/index.html'));
-});
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname+'/../client/public/index.html'));
+// });
 
 
 

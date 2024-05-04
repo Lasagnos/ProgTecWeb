@@ -17,6 +17,9 @@ router.put('/:id', todosController.updateTodo);
 // Delete a todo
 router.delete('/:id', todosController.deleteTodo);
 
+// Delete all todos of a specific user
+router.delete('/user/:userId', todosController.deleteUserTodos);
+
 // Complete a todo
 router.put('/:id/complete', todosController.completeTodo);
 

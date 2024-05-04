@@ -1,21 +1,28 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import TestButton from './testbutton';
+import axios from 'axios';
+import { useCookies } from 'react-cookie';
+//import TestButton from './testbutton';  // DEBUG
 
 const Header = () => {
+  axios.defaults.withCredentials = true;
   const navigate = useNavigate();
-  const username = localStorage.getItem('username');
+  const [cookies, , removeCookie] = useCookies(['user']);
+  const username = cookies.user.username; // show username in the navbar
 
   const handleLogout = () => {
-    localStorage.removeItem('username');
-    localStorage.removeItem('sessionID');
-    navigate('/login');
+    axios.post('http://localhost:5000/api/logout')
+      .then(() => {
+        removeCookie('user'); // Remove the user cookie
+        navigate('/login');   // And redirect to the login page
+      })
+      .catch(error => console.error('Error logging out:', error));
   };
 
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary">
       <div className="container-fluid">
-        <a className="navbar-brand" href="/">
+        <a className="navbar-brand" href="/"> 
           <i className="fas fa-calendar"></i> SELFIE
         </a>
 
@@ -25,7 +32,7 @@ const Header = () => {
 
         <div className="collapse navbar-collapse" id="navbarNavDropdown">
           <ul className="navbar-nav">
-            <li className="nav-item">
+            <li className="nav-item"> {/* Maybe remove in the future and leave brand? */}
               <a className="nav-link active" href="/">Home</a>
             </li>
             <li className="nav-item">
@@ -39,13 +46,13 @@ const Header = () => {
         </div>
 
 
-        {username && 
+        {username &&  // Conditional rendering
           <div className="ml-auto d-flex align-items-center">
             <span className="navbar-text mr-3">
               <i className="fas fa-user"></i> {username}
             </span>
             <button className="btn btn-link" onClick={handleLogout}>Logout</button>
-            <TestButton /> {/* Add the TestButton component here */}
+            {/*<TestButton />*/}  {/* DEBUG */}
           </div>
         }
       </div>

@@ -1,37 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import Footer from './partials/footer';
 import Header from './partials/header';
 
 const Compose = () => {
+  axios.defaults.withCredentials = true;
+  const navigate = useNavigate(); // 'hook' to navigate to compose and edit event
   const { id } = useParams(); // Get the ID from the URL to edit an existing event
   const [event, setEvent] = useState({
     title: '',
     description: '',
     location: '',
     allDay: false,
-  
-    startDate: new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())).toISOString().split('T')[0],
+    
+    //Dates and times are all messy since they use local times. Will be fixed with the time machine. 
+    startDate: new Date().toISOString().split('T')[0],  
     startTime: '00:00',   // in the future, change to current time               
-    endDate: new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())).toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
     endTime: '00:00',     // in the future, change to current time + 1 hour
   
     frequency: 'none',
     stopRecurrence: 'never',
     stopDate: '',
     stopNumber: '',
-    completed: false,
   });
 
   // Fetch the event data when the component is mounted
   useEffect(() => {
     const fetchEventData = async () => {
-      if (id) {
+      if (id) { // Check if we are editing an existing event
         try {
           const response = await axios.get(`http://localhost:5000/api/event/${id}`);
-          const eventData = response.data;
+          const eventData = response.data;  // Get the event data from the response
   
           setEvent(prevEvent => {
             // Check for undefined properties and set them to their default values
@@ -42,6 +44,7 @@ const Compose = () => {
             }
   
             // Convert the start and end dates, along the stopDate to the format used in the form
+            // Glitchy! Will be fixed with the time machine.
             if (eventData.start) {
               const startDate = new Date(eventData.start);
               eventData.startDate = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate())).toISOString().split('T')[0];
@@ -58,7 +61,7 @@ const Compose = () => {
               eventData.stopTime = stopDate.toTimeString().split(' ')[0].substring(0, 5);
             }
   
-            return eventData;
+            return eventData; // Return the updated event data
           });
         } catch (error) {
           console.error(error);
@@ -71,41 +74,47 @@ const Compose = () => {
 
 
   const handleChange = (e) => {
-    let value = e.target.type === 'checkbox' ? e.target.checked : e.target.value; // Handle checkbox 'off' inputs
-    setEvent({ ...event, [e.target.name]: value });
+    let value = e.target.value; // Get the value from the input element
+    setEvent({ ...event, [e.target.name]: value }); // Update the event state 
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submit action
+    e.preventDefault(); // Avoid page refresh
   
-    // Validate and prepare data
+    // Validate and prepare data before submission
     const validatedEvent = validateAndPrepareData(event);
-  
     if (!validatedEvent) {
       return;
     }
   
     try {
-      let response;
+      let response; // Will hold the response from the server
+
       if (id) { // If there is an ID, update the existing event
         response = await axios.put(`http://localhost:5000/api/event/${id}`, validatedEvent);
-      } else { // Otherwise, create a new event
+      } else { // Otherwise, create the new event
         response = await axios.post('http://localhost:5000/api/event/compose', validatedEvent);
       }
       if (response.status === 200) {
-        window.location = '/';  // Redirect to the home page if the operation was successful
+        navigate('/');  // Navigate to the home page after the event is created or updated
       }
+
     } catch (error) {
       console.error(error);
     }
   };
 
   const validateAndPrepareData = (event) => {
-    let validatedEvent = { ...event };
+    let validatedEvent = { ...event }; //copy
   
     // Fuse date and time into a single Date object
-    const start = validatedEvent.allDay ? new Date(Date.UTC(validatedEvent.startDate.split('-')[0], validatedEvent.startDate.split('-')[1] - 1, validatedEvent.startDate.split('-')[2], 0, 0)) : new Date(Date.UTC(validatedEvent.startDate.split('-')[0], validatedEvent.startDate.split('-')[1] - 1, validatedEvent.startDate.split('-')[2], validatedEvent.startTime.split(':')[0], validatedEvent.startTime.split(':')[1]));
-    const end = validatedEvent.allDay ? new Date(Date.UTC(validatedEvent.endDate.split('-')[0], validatedEvent.endDate.split('-')[1] - 1, validatedEvent.endDate.split('-')[2], 23, 59)) : new Date(Date.UTC(validatedEvent.endDate.split('-')[0], validatedEvent.endDate.split('-')[1] - 1, validatedEvent.endDate.split('-')[2], validatedEvent.endTime.split(':')[0], validatedEvent.endTime.split(':')[1]));
+    // Again, glitchy! Will be fixed with the time machine.
+    const start = validatedEvent.allDay ? 
+    new Date(validatedEvent.startDate.split('-')[0], validatedEvent.startDate.split('-')[1] - 1, validatedEvent.startDate.split('-')[2], 0, 0) :
+    new Date(Date.UTC(validatedEvent.startDate.split('-')[0], validatedEvent.startDate.split('-')[1] - 1, validatedEvent.startDate.split('-')[2], validatedEvent.startTime.split(':')[0], validatedEvent.startTime.split(':')[1]));
+    const end = validatedEvent.allDay ? 
+    new Date(validatedEvent.endDate.split('-')[0], validatedEvent.endDate.split('-')[1] - 1, validatedEvent.endDate.split('-')[2], 23, 59) :
+    new Date(Date.UTC(validatedEvent.endDate.split('-')[0], validatedEvent.endDate.split('-')[1] - 1, validatedEvent.endDate.split('-')[2], validatedEvent.endTime.split(':')[0], validatedEvent.endTime.split(':')[1]));
   
     // Check if end is after start
     if (end <= start) {
@@ -114,20 +123,19 @@ const Compose = () => {
     }
   
     // Value preparation for stopRecurrence, stopDate, and stopNumber.
-    // Not strictly necessary, but it makes the data consistent.
-    if (validatedEvent.frequency === 'none' && validatedEvent.stopRecurrence !== 'never') {
-      validatedEvent.stopRecurrence = 'never';
-    }
-    if (validatedEvent.stopRecurrence === 'never') {
-      validatedEvent.stopDate = null;
-      validatedEvent.stopNumber = null;
-    }
-    if (validatedEvent.stopRecurrence === 'date') {
-      validatedEvent.stopNumber = null;
-      validatedEvent.stopDate = new Date(`${validatedEvent.stopDate}T23:59`);
-    }
-    if (validatedEvent.stopRecurrence === 'number') {
-      validatedEvent.stopDate = null;
+    // Not strictly necessary, but it ensures the data is consistent.
+    switch (validatedEvent.stopRecurrence) {
+      case 'never':
+        validatedEvent.stopDate = '';
+        validatedEvent.stopNumber = '';
+        break;
+      case 'date':
+        validatedEvent.stopNumber = '';
+        validatedEvent.stopDate = new Date(`${validatedEvent.stopDate}T23:59`);
+        break;
+      case 'number':
+        validatedEvent.stopDate = '';
+        break;
     }
   
     return { ...validatedEvent, start, end };
