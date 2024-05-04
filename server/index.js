@@ -27,15 +27,19 @@ app.use(express.static(path.join(__dirname, '../client/public')));
 // const secretKey = crypto.randomBytes(64).toString('hex');
 // console.log(secretKey);
 
+// SET UP THE MONGO URI
+const mongoURIforTesting = '';  // ADD YOUR OWN MONGODB URI HERE
+const MONGODB_URI = process.env.MONGODB_URI || mongoURIforTesting;
+
 // Create a new MongoDBStore instance for storing sessions in MongoDB
 const store = new MongoDBStore({
-  uri: process.env.MONGODB_URI,
+  uri: MONGODB_URI,
   collection: 'mySessions'
 });
 
 // Enable express-session, a session middleware for Express
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET  || 'DEFAULT_SECRET_KEY_HERE_FOR_TESTING',
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -73,7 +77,7 @@ const { ensureAuthenticated } = require('./middleware/customMiddlewares');
 
 
 /* DATABASE CONNECTION */
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }); // Properties to use new node.js engines
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }); // Properties to use new node.js engines
 //const db = mongoose.connection;
 
 
