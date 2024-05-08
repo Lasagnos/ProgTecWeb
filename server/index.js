@@ -85,8 +85,9 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true 
 /* IMPORT MODELS */
 const Event = require('./models/Event');
 const User = require('./models/User');
-const Note = require('./models/Note');
+//const Note = require('./models/Note');
 const Todo = require('./models/Todo');
+const PomodoroSession = require('./models/PomodoroSession');
 /* IMPORT ROUTES */
 const authRoutes = require('./routes/authRoutes');
 app.use('/api', authRoutes);
@@ -94,6 +95,8 @@ const eventRoutes = require('./routes/eventRoutes');
 app.use('/api/event', ensureAuthenticated, eventRoutes);
 const todosRoutes = require('./routes/todosRoutes');
 app.use('/api/todos', ensureAuthenticated, todosRoutes);
+const pomodoroRoutes = require('./routes/pomodoroRoutes');
+app.use('/api/pomodoro', ensureAuthenticated, pomodoroRoutes);
 
 
 

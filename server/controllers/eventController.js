@@ -1,5 +1,4 @@
 const Event = require('../models/Event');
-const { checkOwnership } = require('../middleware/customMiddlewares');
 
 // Get all events, GET
 exports.getEvents = (req, res) => {

@@ -8,6 +8,7 @@ import Login from './components/login';
 import Register from './components/register';
 import Compose from './components/compose';
 import Todos from './components/todos';
+import Pomodoro from './components/pomodoro';
 
 const PrivateRoute = ({ children }) => {
   const [cookies] = useCookies(['user']);
@@ -24,6 +25,7 @@ const privateRoutes = [ //Routes accessible only after login
   { path: "/compose", element: <Compose /> }, // Add a new event
   { path: "/compose/:id", element: <Compose /> }, // Edit an event
   { path: "/todos", element: <Todos /> }, // Todos page
+  { path: "/pomodoro", element: <Pomodoro /> } // PomodoroTimer page
 ];
 
 function App() {
