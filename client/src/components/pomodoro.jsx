@@ -4,15 +4,16 @@ import { useCookies } from 'react-cookie';
 import Footer from './partials/footer';
 import Header from './partials/header';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 function PomodoroTimer() {
     axios.defaults.withCredentials = true;
     const [session, setSession] = useState(null); // Current session
     const [sessionDetails, setSessionDetails] = useState(null); // Session details to show after termination
 
-    const [pomodoroTime, setPomodoroTime] = useState(25); // Default pomodoro time 
+    const [pomodoroTime, setPomodoroTime] = useState(30); // Default pomodoro time 
     const [restTime, setRestTime] = useState(5);  // Default rest time
-    const [repetitions, setRepetitions] = useState(4);    // Default repetitions
+    const [repetitions, setRepetitions] = useState(5);    // Default repetitions
 
     const [timer, setTimer] = useState(null); // Timer in seconds
     const [isRunning, setIsRunning] = useState(false);    // Is the timer running?
@@ -29,7 +30,7 @@ function PomodoroTimer() {
         e.preventDefault(); // Avoid page refresh
 
         const startTime = Date.now();   // Get the start time
-        const initialTimer = pomodoroTime * 3;  // Initial timer value
+        const initialTimer = pomodoroTime * 60;  // Initial timer value
 
         // Create a new session in the database with the initial data
         const res = await axios.post('http://localhost:5000/api/pomodoro/start-session', {
@@ -66,7 +67,7 @@ function PomodoroTimer() {
 
             // Calculate the session details
             const totalTime = Math.floor((Date.now() - session.startTime) / 1000); // in seconds
-            const workTime = session.setPomodoroDuration * /*60*/3 * (currentRepetition-1) + pomodoroTimePassed; // in seconds
+            const workTime = session.setPomodoroDuration * 60 * (currentRepetition-1) + pomodoroTimePassed; // in seconds
             const workPercentage = ((workTime / totalTime) * 100).toFixed(2);
 
             // Save the session details in the database
@@ -91,9 +92,9 @@ function PomodoroTimer() {
             
             // Reset all the current states to default
             setSession(null);
-            // setPomodoroTime(25); // Let's keep the form values!
+            // setPomodoroTime(30); // Let's keep the form values!
             // setRestTime(5);
-            // setRepetitions(4);
+            // setRepetitions(5);
             setTimer(null);
             setIsPomodoro(true);
             setPomodoroTimePassed(0);
@@ -161,7 +162,7 @@ function PomodoroTimer() {
 
                     setIsPomodoro(prevIsPomodoro => {   // Switch between pomodoroTime and restTime
                         const nextIsPomodoro = !prevIsPomodoro;
-                        setTimer(nextIsPomodoro ? pomodoroTime * 3 : restTime * 3);
+                        setTimer(nextIsPomodoro ? pomodoroTime * 60 : restTime * 60);
                         return nextIsPomodoro;
                     });
                     
@@ -229,14 +230,14 @@ function PomodoroTimer() {
             
             const elapsedMinutes = (now - pauseTime) / 1000 / 60;   // Minutes since having been paused
         
-            if (elapsedMinutes >= 1) {  // Terminate the session if it has already been 30 minutes  DEBUG: 30 minutes
+            if (elapsedMinutes >= 30) {  // Terminate the session if it has already been 30 minutes  DEBUG: fare 30 minuti
                 updateSession();
                 return;
             }
         
             terminationTimeout = setTimeout(() => {  // Terminate the session after 30 minutes of inactivity
                 updateSession();
-            }, (1 - elapsedMinutes) * 60 * 1000); // Remaining time     DEBUG: 30 minutes
+            }, (30 - elapsedMinutes) * 60 * 1000); // Remaining time     DEBUG: fare 30 minuti
         }
         return () => clearTimeout(terminationTimeout);
     }, [session, isRunning, pauseTime, updateSession]);
@@ -265,8 +266,18 @@ function PomodoroTimer() {
         ) : session ? (
             <div>
                 <h1 className="mt-5 display-4">{isPomodoro ? 'Pomodoro Time' : 'Resting'}</h1>
-                <p className="display-1">{formatTime(timer)}</p>
+
+                <div className="timer-div">
+                    <p className="display-1">{formatTime(timer)}</p>
+                    {/* <div className={`timer-anim-div ${isPomodoro ? 'pomodoro-anim' : 'rest-anim'}`}>
+                    </div> */}
+                </div>
+
                 <p className="display-6">Current repetition: {currentRepetition} out of {repetitions}</p>
+                <ProgressBar now={isPomodoro ? pomodoroTime * 60 - timer : restTime * 60 - timer} 
+                max={isPomodoro ? pomodoroTime * 60 : restTime * 60}
+                variant={isPomodoro ? 'danger' : 'info'} />
+
                 <button className="btn btn-primary mt-3" onClick={togglePause}>{isRunning ? 'Pause' : 'Unpause'}</button>
                 <button className="btn btn-danger mt-3" onClick={updateSession}>Terminate Session</button>
             </div>

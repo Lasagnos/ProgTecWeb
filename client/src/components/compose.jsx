@@ -136,6 +136,8 @@ const Compose = () => {
       case 'number':
         validatedEvent.stopDate = '';
         break;
+      default:
+        break;
     }
   
     return { ...validatedEvent, start, end };

@@ -13,7 +13,8 @@ const Header = () => {
   const handleLogout = () => {
     axios.post('http://localhost:5000/api/logout')
       .then(() => {
-        removeCookie('user'); // Remove the user cookie
+        removeCookie('user'); // Remove the cookies
+        removeCookie('session');
         navigate('/login');   // And redirect to the login page
       })
       .catch(error => console.error('Error logging out:', error));

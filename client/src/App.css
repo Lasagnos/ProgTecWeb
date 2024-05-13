@@ -1,3 +1,14 @@
+/* App.css */
+
+/*
+Allows the footer to stick to the bottom of the page.
+The `min-height: 100vh;` ensures that the footer is always at the bottom of the page, 
+even if the content is less than the height of the viewport. 
+The `margin-top: auto;` pushes the footer to the bottom of the page, regardless of the content above it.
+
+DOES NOT WORK
+*/
+
 body {
   display: flex;
   flex-direction: column;
@@ -8,9 +19,19 @@ body {
   margin-top: auto;
 }
 
+
 /*
-Allows the footer to stick to the bottom of the page.
-The `min-height: 100vh;` ensures that the footer is always at the bottom of the page, 
-even if the content is less than the height of the viewport. 
-The `margin-top: auto;` pushes the footer to the bottom of the page, regardless of the content above it.
+Animations for pomodoro and rest timers.
+*/
+
+/* 
+@keyframes pomodoro-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes rest-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
 */

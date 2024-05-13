@@ -1,7 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie'; // Import useCookies
+
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 
 import Home from './components/home';
 import Login from './components/login';
@@ -30,16 +32,16 @@ const privateRoutes = [ //Routes accessible only after login
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        
-        {privateRoutes.map((route, index) => (  // Map through the privateRoutes array.
-          <Route key={index} path={route.path} element={<PrivateRoute>{route.element}</PrivateRoute>} />
-        ))}
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
+          {privateRoutes.map((route, index) => (  // Map through the privateRoutes array.
+            <Route key={index} path={route.path} element={<PrivateRoute>{route.element}</PrivateRoute>} />
+          ))}
+        </Routes>
+      </Router>
   );
 }
 

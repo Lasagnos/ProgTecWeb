@@ -110,7 +110,7 @@ function Todos() {
 
       <h2>Current Todos <button type="button" className="btn btn-danger ms-2" onClick={handleClearAll}>Clear All</button></h2>
 
-      {todos.sort((a, b) => {   {/* Sorts the todos */}
+      {todos.sort((a, b) => {   // Sorts the todos
         // Sort by completion first
         if (a.completed !== b.completed) {
           return a.completed ? 1 : -1;  // Completed todos go last (1) while pending todos go first (-1)
