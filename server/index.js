@@ -27,8 +27,11 @@ app.use(express.static(path.join(__dirname, '../client/public')));
 // const secretKey = crypto.randomBytes(64).toString('hex');
 // console.log(secretKey);
 
-// SET UP THE MONGO URI
-const mongoURIforTesting = '';  // ADD YOUR OWN MONGODB URI HERE
+// IMPOSTARE QUI I VALORI PER IL DATABASE DI TEST
+const mongoURIforTesting = '';
+const secretKeyforTesting = '';
+
+// Set the MongoDB URI
 const MONGODB_URI = process.env.MONGODB_URI || mongoURIforTesting;
 
 // Create a new MongoDBStore instance for storing sessions in MongoDB
@@ -39,7 +42,7 @@ const store = new MongoDBStore({
 
 // Enable express-session, a session middleware for Express
 app.use(session({
-  secret: process.env.SESSION_SECRET  || 'DEFAULT_SECRET_KEY_HERE_FOR_TESTING',
+  secret: process.env.SESSION_SECRET  || secretKeyforTesting,
   resave: false,
   saveUninitialized: true,
   cookie: {
