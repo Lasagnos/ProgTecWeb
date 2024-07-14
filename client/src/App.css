@@ -1,18 +1,19 @@
-/* App.css */
+/* App.css - The main CSS file for the app */
 
 /*
-Allows the footer to stick to the bottom of the page.
-The `min-height: 100vh;` ensures that the footer is always at the bottom of the page, 
-even if the content is less than the height of the viewport. 
-The `margin-top: auto;` pushes the footer to the bottom of the page, regardless of the content above it.
-
-DOES NOT WORK
+Allows the footer to stick to the bottom of the page, even if the content is shorter than the screen height.
 */
 
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100vh; /* full height */
+}
+
+#root { /* root element of the app, parent of all other elements */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .footer {
@@ -21,17 +22,103 @@ body {
 
 
 /*
-Animations for pomodoro and rest timers.
+Animations for work and rest timers.
+Adapted from https://loading.io/css/.
 */
 
-/* 
-@keyframes pomodoro-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* work timer */
+.lds-dual-ring,
+.lds-dual-ring:after {
+  box-sizing: border-box; /* border and padding are included in the width and height */
+}
+.lds-dual-ring {  /* spinner 'container' */
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+}
+.lds-dual-ring:after {  /* actual spinner content/animation */
+  display: block;
+  content: " "; /* needed */
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%; /* circle */
+  border: 6.4px solid currentColor; /* thickness of the spinner */
+  border-color: currentColor transparent currentColor transparent;  /* pattern of the spinner */
+  animation: lds-dual-ring 1s linear infinite;
+}
+@keyframes lds-dual-ring {  /* simple spinning animation */
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-@keyframes rest-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(-360deg); }
+/* rest timer */
+.lds-heart,
+.lds-heart div,
+.lds-heart div:after,
+.lds-heart div:before {
+  box-sizing: border-box; /* border and padding are included in the width and height */
 }
-*/
+.lds-heart {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+  transform: rotate(45deg); /* angled effect for the heart */
+  transform-origin: 40px 40px;  /* center of the heart */
+}
+.lds-heart div {
+  top: 28px;
+  left: 28px;
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background: currentColor;
+  animation: lds-heart 1s infinite cubic-bezier(0.215, 0.61, 0.355, 1); /* non-linear animation */
+}
+.lds-heart div:after,
+.lds-heart div:before { /* top parts of the heart */
+  content: " ";
+  position: absolute;
+  display: block;
+  width: 32px;
+  height: 32px;
+  background: currentColor;
+}
+.lds-heart div:before { /* left semicircle */
+  left: -24px;
+  border-radius: 50% 0 0 50%;
+}
+.lds-heart div:after {  /* right semicircle */
+  top: -24px;
+  border-radius: 50% 50% 0 0;
+}
+@keyframes lds-heart {  /* scaling heartbeat */
+  0% {
+    transform: scale(0.95);
+  }
+  5% {
+    transform: scale(1.1);
+  }
+  39% {
+    transform: scale(0.85);
+  }
+  45% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(0.9);
+  }
+}
+
+/* paused animations */
+#pauseanim_pomodoro {
+  font-size: 64px;  /* about the same size as the animations */
+}

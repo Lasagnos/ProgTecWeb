@@ -5,23 +5,30 @@ import Footer from './partials/footer';
 import Header from './partials/header';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import { Toast } from 'bootstrap'; // Added import for Toast
+
 
 function PomodoroTimer() {
     axios.defaults.withCredentials = true;
     const [session, setSession] = useState(null); // Current session
     const [sessionDetails, setSessionDetails] = useState(null); // Session details to show after termination
 
-    const [pomodoroTime, setPomodoroTime] = useState(30); // Default pomodoro time 
-    const [restTime, setRestTime] = useState(5);  // Default rest time
-    const [repetitions, setRepetitions] = useState(5);    // Default repetitions
+    const [pomodoroTime, setPomodoroTime] = useState(30); // Default pomodoro time (aka work time) in minutes
+    const [restTime, setRestTime] = useState(5);  // Default rest time in minutes
+    const [repetitions, setRepetitions] = useState(5);    // Default repetition (aka cycle) number
+
+    const [availableHours, setAvailableHours] = useState(0);
+    const [availableMinutes, setAvailableMinutes] = useState(0);
+    const [proposals, setProposals] = useState([]);
 
     const [timer, setTimer] = useState(null); // Timer in seconds
     const [isRunning, setIsRunning] = useState(false);    // Is the timer running?
     const [isPomodoro, setIsPomodoro] = useState(true);   // Is it pomodoro time?
-    const [pomodoroTimePassed, setPomodoroTimePassed] = useState(0);    // Time passed in the current pomodoro
+    const [workTime, setWorkTime] = useState(0);    // Total time spent working
     const [currentRepetition, setCurrentRepetition] = useState(1);  // Current repetition number
     const [pauseTime, setPauseTime] = useState(null);  // Time when the session was paused
 
+    const [toastMessage, setToastMessage] = useState('');
     const [cookies, setCookie, removeCookie] = useCookies(['session']);
 
 
@@ -58,6 +65,7 @@ function PomodoroTimer() {
         // Set the timer to its initial value and start it
         setTimer(initialTimer);
         setIsRunning(true);
+        showNotification('Timer has started!');
     };
 
     // Terminate the session (update the session in the database and clear the session cookie)
@@ -67,7 +75,7 @@ function PomodoroTimer() {
 
             // Calculate the session details
             const totalTime = Math.floor((Date.now() - session.startTime) / 1000); // in seconds
-            const workTime = session.setPomodoroDuration * 60 * (currentRepetition-1) + pomodoroTimePassed; // in seconds
+            setWorkTime(workTime)   // Update the total work time
             const workPercentage = ((workTime / totalTime) * 100).toFixed(2);
 
             // Save the session details in the database
@@ -92,20 +100,23 @@ function PomodoroTimer() {
             
             // Reset all the current states to default
             setSession(null);
-            // setPomodoroTime(30); // Let's keep the form values!
+            // setPomodoroTime(30); // Let's keep the form's input values!
             // setRestTime(5);
             // setRepetitions(5);
+            // setAvailableHours(0);
+            // setAvailableMinutes(0);
             setTimer(null);
             setIsPomodoro(true);
-            setPomodoroTimePassed(0);
+            setWorkTime(0);
             setCurrentRepetition(1);
             setPauseTime(null);
             
+            showNotification('Timer has ended!');
 
         } catch (error) {
             console.error(error);
         }
-    }, [session, currentRepetition, removeCookie, pomodoroTime, restTime, repetitions, pomodoroTimePassed]);
+    }, [session, currentRepetition, removeCookie, pomodoroTime, restTime, repetitions, workTime]);
 
 
     /* COOKIES HANDLING */
@@ -120,7 +131,7 @@ function PomodoroTimer() {
 
             setTimer(cookies.session.timer);
             setCurrentRepetition(cookies.session.maxRepetition);
-            setPomodoroTimePassed(cookies.session.pomodoroTimePassed);
+            setWorkTime(cookies.session.workTime);
 
             setIsPomodoro(cookies.session.isPomodoro);
             setPauseTime(cookies.session.pauseTime);
@@ -137,13 +148,13 @@ function PomodoroTimer() {
 
                 timer: timer, 
                 isPomodoro: isPomodoro,
-                pomodoroTimePassed: pomodoroTimePassed,
+                workTime: workTime,
                 pauseTime: pauseTime,
                 isRunning: isRunning,
             };
             setCookie('session', sessionData, { path: '/' });   // Update the session cookie
         }
-    }, [timer, session, pomodoroTime, restTime, repetitions, isPomodoro, pomodoroTimePassed, currentRepetition, pauseTime, isRunning, setCookie]);
+    }, [timer, session, pomodoroTime, restTime, repetitions, isPomodoro, workTime, currentRepetition, pauseTime, isRunning, setCookie]);
 
 
     /* TIMER HANDLING */
@@ -155,10 +166,13 @@ function PomodoroTimer() {
                 setTimer(timer - 1);    // TICK
 
                 if (isPomodoro) {   // Increment the time passed in the current pomodoro cycle
-                    setPomodoroTimePassed(pomodoroTimePassed + 1);
+                    setWorkTime(workTime + 1);  // Increment the total work time
                 }
 
                 if (timer <= 1) {   // If the timer reaches 0
+
+                    const phase = isPomodoro ? 'Rest Phase' : 'Work Phase'; // Switches for the next phase
+                    showNotification(`Switching to ${phase}`);
 
                     setIsPomodoro(prevIsPomodoro => {   // Switch between pomodoroTime and restTime
                         const nextIsPomodoro = !prevIsPomodoro;
@@ -174,7 +188,6 @@ function PomodoroTimer() {
                                 updateSession();
                                 return prevRep;
                             }
-                            setPomodoroTimePassed(0);   // Reset the time passed in the current pomodoro cycle
                             return nextRep;
                         });
                     }
@@ -184,7 +197,7 @@ function PomodoroTimer() {
 
             return () => clearInterval(interval);
         }
-    }, [timer, isRunning, isPomodoro, pomodoroTime, restTime, repetitions, session, updateSession, pomodoroTimePassed, currentRepetition]);
+    }, [timer, isRunning, isPomodoro, pomodoroTime, restTime, repetitions, session, updateSession, currentRepetition, workTime]);
 
 
     // Utility function to convert seconds into 'XX minutes and XX seconds' format
@@ -196,6 +209,57 @@ function PomodoroTimer() {
     };
 
 
+    /* TIME PROPOSAL HANDLING */
+
+    const calculateProposals = useCallback(() => {
+        const availableTime = availableHours * 60 + availableMinutes;
+        let proposals = [];
+    
+        if (availableTime >= 20) {
+            for (let pomodoroDuration = 45; pomodoroDuration >= 5; pomodoroDuration -= 5) {
+                for (let restDuration = Math.min(15, pomodoroDuration - 5); restDuration >= 5; restDuration -= 5) {
+                    const cycleTime = pomodoroDuration + restDuration;
+                    const repetitions = Math.floor(availableTime / cycleTime);
+                    const totalTime = cycleTime * repetitions; // Total session time
+                    const difference = Math.abs(availableTime - totalTime);
+                    if (repetitions > 0 && difference < 10) {
+                        proposals.push({ pomodoroDuration, restDuration, repetitions, difference, totalTime });
+                    }
+                }
+            }
+        } else {    // Handle cases where available time is less than 20 minutes
+            if (availableTime >= 15) {
+                proposals.push({ pomodoroDuration: 15, restDuration: 0, repetitions: 1, totalTime: 15 });
+                proposals.push({ pomodoroDuration: 10, restDuration: 5, repetitions: 1, totalTime: 15 });
+            } else if (availableTime >= 10) {
+                proposals.push({ pomodoroDuration: 10, restDuration: 0, repetitions: 1, totalTime: 10 });
+                proposals.push({ pomodoroDuration: 5, restDuration: 5, repetitions: 1, totalTime: 10 });
+            } else if (availableTime >= 5) {
+                proposals.push({ pomodoroDuration: 5, restDuration: 0, repetitions: 1, totalTime: 5 });
+            }
+        }
+    
+        // Sort proposals by the smallest time difference and then by the number of cycles (less cycles preferred)
+        proposals.sort((a, b) => a.difference - b.difference || a.repetitions - b.repetitions);
+        proposals = proposals.slice(0, 3);  // Show only 3 max
+        setProposals(proposals);
+    }, [availableHours, availableMinutes]);
+
+    // Function to apply a selected proposal on the form fields
+    const applyProposal = (proposal) => {
+        setPomodoroTime(proposal.pomodoroDuration);
+        setRestTime(proposal.restDuration);
+        setRepetitions(proposal.repetitions);
+    };
+
+    // Update proposals when available time changes
+    useEffect(() => {
+        calculateProposals();
+    }, [calculateProposals]);
+
+
+    /* BUTTON HANDLERS */
+
     // Function to toggle pause
     const togglePause = () => {
         if (isRunning) {
@@ -205,6 +269,63 @@ function PomodoroTimer() {
             setIsRunning(true);
             setPauseTime(null);
         }
+    };
+
+    // Function to terminate a single phase (pomodoro/rest)
+    const skipPhase = () => {
+        if (isPomodoro) {
+            // If it's Pomodoro time, switch to rest time immediately
+            setIsPomodoro(false);
+            setTimer(restTime * 60);
+            showNotification('Switching to Rest Phase');
+        } else {
+            // If it's rest time, check for repetitions left
+            if (currentRepetition < repetitions) {
+                setIsPomodoro(true);
+                setTimer(pomodoroTime * 60);
+                setCurrentRepetition(currentRepetition + 1);
+                setIsRunning(true);
+                showNotification('Switching to Work Phase');
+            } else {
+                session.completed = true;   // maybe not?
+                updateSession();
+            }
+        }
+    };
+
+    // Function to restart the current cycle
+    const restartCycle = () => {
+        setIsPomodoro(true); // Switch back to current work phase
+        setTimer(pomodoroTime * 60);
+        setIsRunning(true);
+        //showNotification('Restarting current cycle');
+    };
+
+    // Function to end the current cycle
+    const endCycle = () => {
+        if (currentRepetition < repetitions) {
+            setCurrentRepetition(currentRepetition + 1);
+            setIsPomodoro(true); // Start with the next pomodoro phase
+            setTimer(pomodoroTime * 60);
+            setIsRunning(true);
+        } else {
+            session.completed = true;   // maybe not?
+            updateSession();
+        }
+    };
+
+    /* NOTIFICATIONS */
+
+    // // Request permission for notifications. BROWSER NOTIFS DO NOT WORK, NEEDS HTTPS
+    // useEffect(() => {
+    //     Notification.requestPermission();
+    // }, []);
+
+    const showNotification = (message) => {
+        setToastMessage(message); // Assuming there's a useState hook for toastMessage
+        const toastEl = document.getElementById('pomodoroToast');
+        const toast = new Toast(toastEl);
+        toast.show();
     };
 
 
@@ -243,9 +364,25 @@ function PomodoroTimer() {
     }, [session, isRunning, pauseTime, updateSession]);
 
 
+
     return (
         <>
         <Header />
+        {/* Notification Toast */}
+        <div aria-live="polite" aria-atomic="true" className="position-relative">
+            <div className="toast-container position-absolute top-0 end-0 p-3">
+                <div id="pomodoroToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div className="toast-header">
+                        <strong className="me-auto">Pomodoro Timer</strong>
+                        <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div className="toast-body">
+                        {toastMessage}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div className="container text-center">
         {sessionDetails ? (
             <div className="card mt-5">
@@ -253,48 +390,100 @@ function PomodoroTimer() {
                     <h1>Session Details</h1>
                 </div>
                 <div className="card-body">
-                    <p>Pomodoro Duration: {sessionDetails.setPomodoroDuration}m</p>
-                    <p>Rest Duration: {sessionDetails.setRestDuration}m</p>
-                    <p>Repetitions: {sessionDetails.maxRepetition} out of {sessionDetails.setRepetitions}</p>
-                    <p>Total Time: {formatTime(sessionDetails.sessionDuration)}</p>
-                    <p>Work Time: {formatTime(sessionDetails.workDuration)}</p>
-                    <p>Work Percentage: {sessionDetails.workPercentage}%</p>
+                    <p>Set Working Time & Pause Time: {sessionDetails.setPomodoroDuration}m & {sessionDetails.setRestDuration}m</p>
+                    <p>Time spent in session: {formatTime(sessionDetails.sessionDuration)}</p>
+                    <p>Time spent working: {formatTime(sessionDetails.workDuration)}, equal to {sessionDetails.workPercentage}% of the session</p>
+                    <p>Cycles: {sessionDetails.maxRepetition} out of {sessionDetails.setRepetitions}</p>
                     <p>Session Completed: {sessionDetails.completed ? 'Yes :)' : 'No :('}</p>
                     <button className="btn btn-primary mt-3" onClick={() => setSessionDetails(null)}>Back to the form</button>
                 </div>
             </div>
         ) : session ? (
             <div>
-                <h1 className="mt-5 display-4">{isPomodoro ? 'Pomodoro Time' : 'Resting'}</h1>
+                <h1 className="mt-5 display-4">{isPomodoro ? 'Working' : 'Resting'}</h1>
 
                 <div className="timer-div">
                     <p className="display-1">{formatTime(timer)}</p>
-                    {/* <div className={`timer-anim-div ${isPomodoro ? 'pomodoro-anim' : 'rest-anim'}`}>
-                    </div> */}
+
+                    {/* Animation */}
+                    <div style={{height:'80px', display:'flex', justifyContent:'center', alignItems:'center' }}>
+                    {!isRunning ? (
+                            <i id="pauseanim_pomodoro" class="fa fa-pause" aria-hidden="true"></i>
+                    ) : isPomodoro ? (
+                        <div className="lds-dual-ring text-danger"></div>
+                    ) : (
+                        <div className="lds-heart text-info"><div></div></div>
+                    )}
+                    </div>
                 </div>
 
-                <p className="display-6">Current repetition: {currentRepetition} out of {repetitions}</p>
+
+                <p className="display-6">Current cycle: {currentRepetition} out of {repetitions}</p>
                 <ProgressBar now={isPomodoro ? pomodoroTime * 60 - timer : restTime * 60 - timer} 
                 max={isPomodoro ? pomodoroTime * 60 : restTime * 60}
                 variant={isPomodoro ? 'danger' : 'info'} />
 
+                <div className="button-container" style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
                 <button className="btn btn-primary mt-3" onClick={togglePause}>{isRunning ? 'Pause' : 'Unpause'}</button>
+                
+                <div className="btn-group mt-3">    {/* Button group for the cycle controls */}
+                    <button className="btn btn-secondary" onClick={restartCycle}><i class="fa fa-undo" aria-hidden="true"></i> Restart Cycle</button>
+                    <button className="btn btn-secondary mx-1" onClick={skipPhase}><i class="fa fa-step-forward" aria-hidden="true"></i> Skip Phase</button>
+                    <button className="btn btn-secondary" onClick={endCycle}><i class="fa fa-fast-forward" aria-hidden="true"></i> Next Cycle</button>
+                </div>
+
                 <button className="btn btn-danger mt-3" onClick={updateSession}>Terminate Session</button>
+                </div>
             </div>
         ) : (
             <form onSubmit={startSession} className="mt-5">
-                <div className="form-group">
-                    <label>Pomodoro Time</label>
-                    <input type="number" min="1" value={pomodoroTime} onChange={(e) => setPomodoroTime(e.target.value)} className="form-control" />
+                <div className="container">
+                    <div className="row">
+                        <div className="col-md-4">
+                            <div className="form-group">
+                                <label>Work Time</label>
+                                <input type="number" min="1" value={pomodoroTime} onChange={(e) => setPomodoroTime(e.target.value)} className="form-control" />
+                            </div>
+                        </div>
+                        <div className="col-md-4">
+                            <div className="form-group">
+                                <label>Rest Time</label>
+                                <input type="number" min="0" value={restTime} onChange={(e) => setRestTime(e.target.value)} className="form-control" />
+                            </div>
+                        </div>
+                        <div className="col-md-4">
+                            <div className="form-group">
+                                <label>Cycles</label>
+                                <input type="number" min="1" value={repetitions} onChange={(e) => setRepetitions(e.target.value)} className="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">
+                            <div className="form-group">
+                                <label>Available Hours</label>
+                                <input type="number" min="0" value={availableHours} onChange={(e) => setAvailableHours(parseInt(e.target.value) || 0)} className="form-control" />
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <div className="form-group">
+                                <label>Available Minutes</label>
+                                <input type="number" min="0" value={availableMinutes} onChange={(e) => setAvailableMinutes(parseInt(e.target.value) || 0)} className="form-control" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className="form-group">
-                    <label>Rest Time</label>
-                    <input type="number" min="0" value={restTime} onChange={(e) => setRestTime(e.target.value)} className="form-control" />
+                <div>
+                    {proposals.length > 0 && <h3 className='mt-3'>Proposals</h3>}
+                    {proposals.map((proposal, index) => (
+                        <div key={index} className="mb-2"> {/* Wrap each button in a div with a bottom margin */}
+                            <button type="button" className="btn btn-outline-primary w-20" onClick={() => applyProposal(proposal)}>
+                                Pomodoro: {proposal.pomodoroDuration}m, Rest: {proposal.restDuration}m, Cycles: {proposal.repetitions}, Total Session Time: {proposal.totalTime}m
+                            </button>
+                        </div>
+                    ))}
                 </div>
-                <div className="form-group">
-                    <label>Repetitions</label>
-                    <input type="number" min="1" value={repetitions} onChange={(e) => setRepetitions(e.target.value)} className="form-control" />
-                </div>
+
                 <button type="submit" className="btn btn-primary">Start Pomodoro</button>
             </form>
         )}
