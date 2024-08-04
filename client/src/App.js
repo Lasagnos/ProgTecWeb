@@ -11,6 +11,10 @@ import Register from './components/register';
 import Compose from './components/compose';
 import Todos from './components/todos';
 import Pomodoro from './components/pomodoro';
+import Notes from './components/notes';
+import NoteWrite from './components/noteWrite';
+
+import { TimeMachineProvider } from './components/contexts/timeMachineContext';
 
 const PrivateRoute = ({ children }) => {
   const [cookies] = useCookies(['user']);
@@ -27,21 +31,25 @@ const privateRoutes = [ //Routes accessible only after login
   { path: "/compose", element: <Compose /> }, // Add a new event
   { path: "/compose/:id", element: <Compose /> }, // Edit an event
   { path: "/todos", element: <Todos /> }, // Todos page
-  { path: "/pomodoro", element: <Pomodoro /> } // PomodoroTimer page
+  { path: "/pomodoro", element: <Pomodoro /> }, // PomodoroTimer page
+  { path: "/notes", element: <Notes /> }, // Notes page
+  { path: "/notes/write", element: <NoteWrite /> }, // Note writing page
+  { path: "/notes/write/:id", element: <NoteWrite /> }, // Note editing page
 ];
 
 function App() {
   return (
+    <TimeMachineProvider>
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
           {privateRoutes.map((route, index) => (  // Map through the privateRoutes array.
             <Route key={index} path={route.path} element={<PrivateRoute>{route.element}</PrivateRoute>} />
           ))}
         </Routes>
       </Router>
+    </TimeMachineProvider>
   );
 }
 

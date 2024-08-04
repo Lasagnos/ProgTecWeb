@@ -31,8 +31,7 @@ const Home = ({ content }) => {
     <>
       <Header />
       <h1>Home</h1>
-      <p>{content}</p>
-      <div className="row row-cols-1 row-cols-md-3 g-4">
+      <div className="row row-cols-1 row-cols-md-3 g-4 mx-0 mb-2">
         {events.map((event) => (
           <Event
             key={event._id}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
+import { useTimeMachine } from './contexts/timeMachineContext';
 
 import Footer from './partials/footer';
 import Header from './partials/header';
@@ -11,6 +12,7 @@ function Todos() {
   const [todo, setTodo] = useState(''); 
   const [dueDate, setDueDate] = useState('');
   const [cookies] = useCookies(['user']);
+  const { timeMachineDate } = useTimeMachine();
 
   useEffect(() => { // Fetch the todos when the component is mounted
     axios.get('http://localhost:5000/api/todos')
@@ -70,8 +72,8 @@ function Todos() {
   
     const dueDate = new Date(todo.dueDate);
     dueDate.setHours(0, 0, 0, 0); // Set the time to the start of the dueDate
-    const now = new Date();
-    now.setHours(0, 0, 0, 0); // Get the current time (maybe get it fron creationDate?)
+    const now = new Date(timeMachineDate);
+    now.setHours(0, 0, 0, 0); // Get the current time
   
     const threeDaysFromNow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3); // Get the date of three days from now
   
@@ -109,7 +111,8 @@ function Todos() {
     </form>
 
       <h2>Current Todos <button type="button" className="btn btn-danger ms-2" onClick={handleClearAll}>Clear All</button></h2>
-
+      {/* {<p>Click on the checkbox to mark an activity as completed, or click on the 'x' to delete it.</p>} */}
+      
       {todos.sort((a, b) => {   // Sorts the todos
         // Sort by completion first
         if (a.completed !== b.completed) {
@@ -124,19 +127,25 @@ function Todos() {
           // Add the color to the specific todo, and add text-white if overdue or completed
           <div key={todo._id} className={`card mb-3 ${todoColor} ${todoColor === 'bg-dark' || todoColor === 'bg-success' ? 'text-white' : ''}`}>
             <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
+              <div className="row">
 
-                <div className="d-flex align-items-center">
-                  <strong className="card-title" style={{ marginRight: '10px' }}>{todo.todo}</strong> {/* Title */}
-
-                  <div className="d-flex align-items-center">{new Date(todo.dueDate).toLocaleDateString()}</div>  {/* Due date */}
+                <div className="col-lg-9 col-md-8 col-sm-7">
+                  <strong className="card-title">
+                    {todo.todo.length > 100 ? `${todo.todo.substring(0, 97)}...` : todo.todo}
+                  </strong>
                 </div>
 
-                <div className="d-flex align-items-center">
-                  <input type="checkbox" checked={todo.completed} onChange={e => handleCheckboxChange(e, todo._id)} />  {/* Completed checkbox */}
-                  <span className="ms-2">Completed</span>
+                <div className="col-lg-3 col-md-4 col-sm-5 d-flex justify-content-end align-items-center">
+                  <div className="d-flex align-items-center mx-2">{new Date(todo.dueDate).toLocaleDateString()}</div>  {/* Due date */}
+                  <input type="checkbox" data-bs-toggle="tooltip" title="Mark as completed" checked={todo.completed} onChange={e => handleCheckboxChange(e, todo._id)} />  {/* Completed checkbox */}
 
-                  <button type="button" className="btn btn-danger ms-2" onClick={() => handleClear(todo._id)}>Clear</button>  {/* Clear button */}
+                  <span role="button" tabIndex="0" className="fas fa-times text-danger ms-3"
+                    onClick={() => handleClear(todo._id)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ')
+                      {e.preventDefault();
+                        handleClear(todo._id);}
+                    }}  style={{ cursor: 'pointer' }} aria-label="Clear todo"
+                  ></span>  {/* Clear button */}
                 </div>
 
               </div>

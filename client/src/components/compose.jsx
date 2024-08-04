@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTimeMachine } from './contexts/timeMachineContext';
 
 import Footer from './partials/footer';
 import Header from './partials/header';
@@ -9,17 +10,22 @@ const Compose = () => {
   axios.defaults.withCredentials = true;
   const navigate = useNavigate(); // 'hook' to navigate to compose and edit event
   const { id } = useParams(); // Get the ID from the URL to edit an existing event
+
+  const { timeMachineDate } = useTimeMachine();
+  const localDate = new Date(timeMachineDate);  // Get the current date from the time machine
+  const temp_endTime =  new Date(localDate);
+  temp_endTime.setHours(localDate.getHours() + 1);  // Same date incremented by 1 hour
+
   const [event, setEvent] = useState({
     title: '',
     description: '',
     location: '',
     allDay: false,
     
-    //Dates and times are all messy since they use local times. Will be fixed with the time machine. 
-    startDate: new Date().toISOString().split('T')[0],  
-    startTime: '00:00',   // in the future, change to current time               
-    endDate: new Date().toISOString().split('T')[0],
-    endTime: '00:00',     // in the future, change to current time + 1 hour
+    startDate: localDate.toISOString().slice(0, 10),  // only the date
+    startTime: localDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),        // only the time, without seconds
+    endDate: localDate.toISOString().slice(0, 10),
+    endTime: temp_endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),       // startTime + 1 hour, without seconds
   
     frequency: 'none',
     stopRecurrence: 'never',
@@ -43,7 +49,7 @@ const Compose = () => {
               }
             }
   
-            // Convert the start and end dates, along the stopDate to the format used in the form
+            // Convert the start, end and stop dates to the format used in the form
             // Glitchy! Will be fixed with the time machine.
             if (eventData.start) {
               const startDate = new Date(eventData.start);

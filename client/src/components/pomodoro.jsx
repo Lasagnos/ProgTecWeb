@@ -7,6 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import { Toast } from 'bootstrap'; // Added import for Toast
 
+// The pomodoro timer does not use the time machine! It uses the system time to count the time passed.
 
 function PomodoroTimer() {
     axios.defaults.withCredentials = true;
@@ -408,11 +409,11 @@ function PomodoroTimer() {
                     {/* Animation */}
                     <div style={{height:'80px', display:'flex', justifyContent:'center', alignItems:'center' }}>
                     {!isRunning ? (
-                            <i id="pauseanim_pomodoro" class="fa fa-pause" aria-hidden="true"></i>
+                            <i id="pauseanim_pomodoro" class="fa fa-pause" aria-hidden="true" onClick={togglePause}></i>
                     ) : isPomodoro ? (
-                        <div className="lds-dual-ring text-danger"></div>
+                        <div className="lds-dual-ring text-danger" onClick={togglePause}></div>
                     ) : (
-                        <div className="lds-heart text-info"><div></div></div>
+                        <div className="lds-heart text-info" onClick={togglePause}><div></div></div>
                     )}
                     </div>
                 </div>

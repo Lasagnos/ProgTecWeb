@@ -3,19 +3,13 @@
 const mongoose = require('mongoose');
 
 const noteSchema = new mongoose.Schema({
-    heading: String,
+    title: String,
     content: String,
 
-    creationDate: { type: Date, default: Date.now },
-    lastEditDate: { type: Date, default: Date.now },
+    createdAt: Date,
+    updatedAt: Date,
 
-    tags: {
-        type: [String],
-        validate: {
-            validator: (tags) => tags.every((tag) => typeof tag === 'string' && tag.trim().length > 0),
-            message: 'Tutti i tag devono essere stringhe non vuote',
-        },
-    },
+    categories: [String],
 
     user: {
         type: mongoose.Schema.Types.ObjectId,

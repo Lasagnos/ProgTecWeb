@@ -2,12 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-//import TestButton from './testbutton';  // DEBUG
+import { useTimeMachine } from '../contexts/timeMachineContext';
 
 const Header = () => {
   axios.defaults.withCredentials = true;
   const navigate = useNavigate();
   const [cookies, , removeCookie] = useCookies(['user']);
+  const { resetTimeMachineDate } = useTimeMachine();  // Time machine context to reset the datetime
   const username = cookies.user.username; // show username in the navbar
 
   const handleLogout = () => {
@@ -15,6 +16,7 @@ const Header = () => {
       .then(() => {
         removeCookie('user'); // Remove the cookies
         removeCookie('session');
+        resetTimeMachineDate();  // Reset the time machine's datetime
         navigate('/login');   // And redirect to the login page
       })
       .catch(error => console.error('Error logging out:', error));
@@ -45,6 +47,10 @@ const Header = () => {
             </li>
 
             <li className="nav-item">
+              <a className="nav-link" href="/notes">Notes</a>
+            </li>
+
+            <li className="nav-item">
               <a className="nav-link" href="/pomodoro">Pomodoro</a>
             </li>
           </ul>
@@ -57,7 +63,6 @@ const Header = () => {
               <i className="fas fa-user"></i> {username}
             </span>
             <button className="btn btn-link" onClick={handleLogout}>Logout</button>
-            {/*<TestButton />*/}  {/* DEBUG */}
           </div>
         }
       </div>

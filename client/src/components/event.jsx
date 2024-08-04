@@ -63,8 +63,9 @@ const Event = ({ event, onEventDelete }) => {
           <p>No location present.</p>
         )}
 
-        <p><strong>Start:</strong> {event.allDay ? new Date(event.start).toLocaleDateString() : new Date(event.start).toLocaleString()}</p>
-        <p><strong>End:</strong> {event.allDay ? new Date(event.end).toLocaleDateString() : new Date(event.end).toLocaleString()}</p>
+        {/* Hide seconds */}
+        <p><strong>Start:</strong> {event.allDay ? new Date(event.start).toLocaleDateString() : new Date(event.start).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}</p>
+        <p><strong>End:</strong> {event.allDay ? new Date(event.end).toLocaleDateString() : new Date(event.end).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}</p>
 
         <div className="d-flex">  {/* Conditional rendering */}
           {event.frequency !== 'none' && <p><strong>Frequency:</strong> {event.frequency}</p>}

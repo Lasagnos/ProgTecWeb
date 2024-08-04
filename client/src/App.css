@@ -118,7 +118,12 @@ Adapted from https://loading.io/css/.
   }
 }
 
-/* paused animations */
+/* paused animations show a pause favicon*/
 #pauseanim_pomodoro {
   font-size: 64px;  /* about the same size as the animations */
 }
+
+/*
+FUTURE STUFF
+*/
+
