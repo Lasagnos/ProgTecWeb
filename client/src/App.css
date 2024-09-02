@@ -124,6 +124,41 @@ Adapted from https://loading.io/css/.
 }
 
 /*
-FUTURE STUFF
+Calendar styling
 */
 
+.hoverAlt, .weekdays{
+  background-color: #f8f9fa; /* 'Light' bootstrap color */
+  /*background-color: #ededed;*/
+}
+.hoverCurr:hover, .hoverAlt:hover {
+  background-color: #ededed; /* hover color for previous and next days */
+  /*background-color: #f8f9fa;*/
+}
+
+.calendarDot {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #0d6efd;  /* 'Primary' bootstrap color */
+}
+.calendarLine {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: #0d6efd;  
+}
+
+/*
+EventWrite styling
+*/
+
+.table td:hover:not(.bg-primary) { /* hover effect for unselected table cells */
+  background-color: #f8f9fa;
+}

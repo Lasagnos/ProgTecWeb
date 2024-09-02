@@ -8,7 +8,8 @@ import './App.css';
 import Home from './components/home';
 import Login from './components/login';
 import Register from './components/register';
-import Compose from './components/compose';
+import Calendar from './components/calendar';
+import EventWrite from './components/eventWrite';
 import Todos from './components/todos';
 import Pomodoro from './components/pomodoro';
 import Notes from './components/notes';
@@ -18,8 +19,7 @@ import { TimeMachineProvider } from './components/contexts/timeMachineContext';
 
 const PrivateRoute = ({ children }) => {
   const [cookies] = useCookies(['user']);
-  //log the user cookie
-  //console.log(cookies.user);
+  //console.log(cookies.user);  //DEBUG
 
   // If the user cookie is set, render the child component
   // Otherwise, redirect to the login page
@@ -27,9 +27,10 @@ const PrivateRoute = ({ children }) => {
 };
 
 const privateRoutes = [ //Routes accessible only after login
-  { path: "/", element: <Home /> }, // Home / Future calendar
-  { path: "/compose", element: <Compose /> }, // Add a new event
-  { path: "/compose/:id", element: <Compose /> }, // Edit an event
+  { path: "/", element: <Home /> }, // Home
+  { path: "/calendar", element: <Calendar /> }, // Calendar page
+  { path: "/event/write", element: <EventWrite /> }, // Add a new event
+  { path: "/event/write/:id", element: <EventWrite /> }, // Edit an event
   { path: "/todos", element: <Todos /> }, // Todos page
   { path: "/pomodoro", element: <Pomodoro /> }, // PomodoroTimer page
   { path: "/notes", element: <Notes /> }, // Notes page

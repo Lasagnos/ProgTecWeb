@@ -105,7 +105,9 @@ function Todos() {
           <input id="dueDate" type="date" className="form-control" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
         </div>
         <div className="col-md-2 d-flex align-items-center justify-content-end">
-          <button type="submit" className="btn btn-primary">Create Todo</button>
+          <button type="submit" className="btn btn-primary">
+            <i className="fa fa-plus" aria-hidden="true"></i> Create Todo
+          </button>
         </div>
       </div>
     </form>

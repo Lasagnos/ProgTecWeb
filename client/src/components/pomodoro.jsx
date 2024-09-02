@@ -317,7 +317,8 @@ function PomodoroTimer() {
 
     /* NOTIFICATIONS */
 
-    // // Request permission for notifications. BROWSER NOTIFS DO NOT WORK, NEEDS HTTPS
+    // // Request permission for notifications.
+    // // Not implemented: BROWSER NOTIFS DO NOT WORK, NEEDS HTTPS
     // useEffect(() => {
     //     Notification.requestPermission();
     // }, []);
@@ -386,7 +387,7 @@ function PomodoroTimer() {
 
         <div className="container text-center">
         {sessionDetails ? (
-            <div className="card mt-5">
+            <div className="card my-5">
                 <div className="card-header">
                     <h1>Session Details</h1>
                 </div>
@@ -394,14 +395,14 @@ function PomodoroTimer() {
                     <p>Set Working Time & Pause Time: {sessionDetails.setPomodoroDuration}m & {sessionDetails.setRestDuration}m</p>
                     <p>Time spent in session: {formatTime(sessionDetails.sessionDuration)}</p>
                     <p>Time spent working: {formatTime(sessionDetails.workDuration)}, equal to {sessionDetails.workPercentage}% of the session</p>
-                    <p>Cycles: {sessionDetails.maxRepetition} out of {sessionDetails.setRepetitions}</p>
+                    <p>Cycle reached: {sessionDetails.maxRepetition} out of {sessionDetails.setRepetitions}</p>
                     <p>Session Completed: {sessionDetails.completed ? 'Yes :)' : 'No :('}</p>
                     <button className="btn btn-primary mt-3" onClick={() => setSessionDetails(null)}>Back to the form</button>
                 </div>
             </div>
         ) : session ? (
             <div>
-                <h1 className="mt-5 display-4">{isPomodoro ? 'Working' : 'Resting'}</h1>
+                <h1 className="mt-2 display-4">{isPomodoro ? 'Working' : 'Resting'}</h1>
 
                 <div className="timer-div">
                     <p className="display-1">{formatTime(timer)}</p>
@@ -409,7 +410,7 @@ function PomodoroTimer() {
                     {/* Animation */}
                     <div style={{height:'80px', display:'flex', justifyContent:'center', alignItems:'center' }}>
                     {!isRunning ? (
-                            <i id="pauseanim_pomodoro" class="fa fa-pause" aria-hidden="true" onClick={togglePause}></i>
+                            <i id="pauseanim_pomodoro" className="fa fa-pause" aria-hidden="true" onClick={togglePause}></i>
                     ) : isPomodoro ? (
                         <div className="lds-dual-ring text-danger" onClick={togglePause}></div>
                     ) : (
@@ -425,67 +426,72 @@ function PomodoroTimer() {
                 variant={isPomodoro ? 'danger' : 'info'} />
 
                 <div className="button-container" style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-                <button className="btn btn-primary mt-3" onClick={togglePause}>{isRunning ? 'Pause' : 'Unpause'}</button>
+                <button className="btn btn-primary my-4" onClick={togglePause}>{isRunning ? 'Pause' : 'Unpause'}</button>
                 
-                <div className="btn-group mt-3">    {/* Button group for the cycle controls */}
-                    <button className="btn btn-secondary" onClick={restartCycle}><i class="fa fa-undo" aria-hidden="true"></i> Restart Cycle</button>
-                    <button className="btn btn-secondary mx-1" onClick={skipPhase}><i class="fa fa-step-forward" aria-hidden="true"></i> Skip Phase</button>
-                    <button className="btn btn-secondary" onClick={endCycle}><i class="fa fa-fast-forward" aria-hidden="true"></i> Next Cycle</button>
+                <div className="btn-group">    {/* Button group for the cycle controls */}
+                    <button className="btn btn-secondary" onClick={restartCycle}><i className="fa fa-undo" aria-hidden="true"></i> Restart Cycle</button>
+                    <button className="btn btn-secondary mx-1" onClick={skipPhase}><i className="fa fa-step-forward" aria-hidden="true"></i> Skip Phase</button>
+                    <button className="btn btn-secondary" onClick={endCycle}><i className="fa fa-fast-forward" aria-hidden="true"></i> Next Cycle</button>
                 </div>
 
-                <button className="btn btn-danger mt-3" onClick={updateSession}>Terminate Session</button>
+                <button className="btn btn-danger my-4" onClick={updateSession}>Terminate Session</button>
                 </div>
             </div>
         ) : (
             <form onSubmit={startSession} className="mt-5">
                 <div className="container">
-                    <div className="row">
+                    <div className="row mb-4">
                         <div className="col-md-4">
                             <div className="form-group">
                                 <label>Work Time</label>
-                                <input type="number" min="1" value={pomodoroTime} onChange={(e) => setPomodoroTime(e.target.value)} className="form-control" />
+                                <input type="number" min="1" value={pomodoroTime} onChange={(e) => setPomodoroTime(e.target.value)} className="form-control w-auto mx-auto" />
                             </div>
                         </div>
                         <div className="col-md-4">
                             <div className="form-group">
                                 <label>Rest Time</label>
-                                <input type="number" min="0" value={restTime} onChange={(e) => setRestTime(e.target.value)} className="form-control" />
+                                <input type="number" min="0" value={restTime} onChange={(e) => setRestTime(e.target.value)} className="form-control w-auto mx-auto" />
                             </div>
                         </div>
                         <div className="col-md-4">
                             <div className="form-group">
                                 <label>Cycles</label>
-                                <input type="number" min="1" value={repetitions} onChange={(e) => setRepetitions(e.target.value)} className="form-control" />
+                                <input type="number" min="1" value={repetitions} onChange={(e) => setRepetitions(e.target.value)} className="form-control w-auto mx-auto" />
                             </div>
                         </div>
                     </div>
-                    <div className="row">
+
+                    <hr className="d-block d-md-none my-3" style={{ borderColor: 'gray' }}/> {/* break on small screens */}
+
+                    <div className="row mb-4">
                         <div className="col-md-6">
                             <div className="form-group">
                                 <label>Available Hours</label>
-                                <input type="number" min="0" value={availableHours} onChange={(e) => setAvailableHours(parseInt(e.target.value) || 0)} className="form-control" />
+                                <input type="number" min="0" value={availableHours} onChange={(e) => setAvailableHours(parseInt(e.target.value) || 0)} className="form-control w-auto mx-auto" />
                             </div>
                         </div>
                         <div className="col-md-6">
                             <div className="form-group">
                                 <label>Available Minutes</label>
-                                <input type="number" min="0" value={availableMinutes} onChange={(e) => setAvailableMinutes(parseInt(e.target.value) || 0)} className="form-control" />
+                                <input type="number" min="0" value={availableMinutes} onChange={(e) => setAvailableMinutes(parseInt(e.target.value) || 0)} className="form-control w-auto mx-auto" />
                             </div>
                         </div>
                     </div>
                 </div>
                 <div>
-                    {proposals.length > 0 && <h3 className='mt-3'>Proposals</h3>}
+                    {proposals.length > 0 && <h4>Proposals</h4>}
                     {proposals.map((proposal, index) => (
                         <div key={index} className="mb-2"> {/* Wrap each button in a div with a bottom margin */}
                             <button type="button" className="btn btn-outline-primary w-20" onClick={() => applyProposal(proposal)}>
-                                Pomodoro: {proposal.pomodoroDuration}m, Rest: {proposal.restDuration}m, Cycles: {proposal.repetitions}, Total Session Time: {proposal.totalTime}m
+                                Work/Rest: {proposal.pomodoroDuration}m/{proposal.restDuration}m, {proposal.repetitions} cycles - Total Session Time: {proposal.totalTime}m
                             </button>
                         </div>
                     ))}
                 </div>
 
-                <button type="submit" className="btn btn-primary">Start Pomodoro</button>
+                <div className="d-flex justify-content-center my-4">
+                    <button type="submit" className="btn btn-primary btn-lg text-center">Start Pomodoro</button>
+                </div>
             </form>
         )}
         </div>

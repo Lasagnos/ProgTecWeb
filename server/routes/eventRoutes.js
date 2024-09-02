@@ -9,10 +9,10 @@ router.get('/', eventController.getEvents);
 router.get('/:id', eventController.getEvent);
 
 // Create a new event
-router.post('/compose', eventController.createEvent);
+router.post('/write', eventController.createEvent);
 
 // Update an existing event
-router.put('/:id', eventController.updateEvent);
+router.put('/write/:id', eventController.updateEvent);
 
 // Delete an event
 router.delete('/:id', eventController.deleteEvent);

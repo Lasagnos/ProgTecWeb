@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTimeMachine } from '../contexts/timeMachineContext';
+import { toLocalISOString } from '../utilities/utilityFunctions';
 
 // Shows the timemachine
 
@@ -16,13 +17,6 @@ const Footer = () => {
   // Resets the datetime to the current system datetime
   const resetToCurrentDate = () => {
     changeTimeMachineDate(new Date());
-  };
-
-  // Utility to handle timezone offset
-  const toLocalISOString = (date) => {
-    const offset = date.getTimezoneOffset() * 60000; // Get the offset in milliseconds
-    const adjustedDate = new Date(date.getTime() - offset); // Get the correct date
-    return adjustedDate.toISOString().slice(0, 16);
   };
 
   return (

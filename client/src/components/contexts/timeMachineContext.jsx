@@ -34,6 +34,10 @@ export const TimeMachineProvider = ({ children }) => {
   // Set the timeMachineDate to the date passed as an argument
   const changeTimeMachineDate = (date) => {
     const newDate = new Date(date);
+    if (isNaN(newDate.getTime())) { // Safeguard
+      //console.error('Invalid date!');
+      return;
+    }
     localStorage.setItem('timeMachineDate', newDate); // Save the changed date to localStorage
     setTimeMachineDate(newDate);
   };

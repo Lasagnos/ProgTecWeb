@@ -35,12 +35,17 @@ const Header = () => {
 
         <div className="collapse navbar-collapse" id="navbarNavDropdown">
           <ul className="navbar-nav">
-            <li className="nav-item"> {/* Maybe remove in the future and leave brand? */}
+            {/* <li className="nav-item">
               <a className="nav-link active" href="/">Home</a>
-            </li>
+            </li> */}
+
             <li className="nav-item">
-              <a className="nav-link" href="/compose">Add New Event</a>
+              <a className="nav-link" href="/calendar">Calendar</a>
             </li>
+            
+            {/* <li className="nav-item">
+              <a className="nav-link" href="/event/write">Add New Event</a>
+            </li> */}
 
             <li className="nav-item">
               <a className="nav-link" href="/todos">Todos</a>

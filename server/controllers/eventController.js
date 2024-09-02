@@ -43,7 +43,6 @@ exports.deleteEvent = (req, res) => {
         .catch(err => res.status(500).json({ error: err.message }));
 };
 
-// Compose route used to create new events
 // Create a new event, POST
 exports.createEvent = async (req, res) => {
     try {

@@ -105,7 +105,7 @@ app.use('/api/notes', ensureAuthenticated, notesRoutes);
 
 
 
-/* ALL ROUTES */  // Mostly debugs, try to move the real ones all to routes folder
+/* ALL ROUTES */  // Mostly debugs, to be removed
 
 // app.get('/api/test', (req, res) => {   // DEBUG
 //   res.json({ user: req.user });

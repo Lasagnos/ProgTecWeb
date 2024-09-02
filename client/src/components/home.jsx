@@ -6,25 +6,25 @@ import Event from './event';
 
 const Home = ({ content }) => {
   axios.defaults.withCredentials = true;
-  const [events, setEvents] = useState([]);
+  const [eventsOld, setEventsOld] = useState([]);
 
   useEffect(() => { // Fetch the events from the server
     axios.get('http://localhost:5000/api/event')
       .then(response => {
         const data = response.data;
-        Array.isArray(data) ? setEvents(data) : setEvents([]);  // set events if an array is received
+        Array.isArray(data) ? setEventsOld(data) : setEventsOld([]);  // set events if an array is received
       })
       .catch(error => console.error('Error:', error));
   }, []);
 
   const handleEventUpdate = (updatedEvent) => {
     // Update the event in the state by replacing the event by its id
-    setEvents(events.map(event => event._id === updatedEvent._id ? updatedEvent : event));
+    setEventsOld(eventsOld.map(event => event._id === updatedEvent._id ? updatedEvent : event));
   };
 
   const handleEventDelete = (deletedEventId) => {
     // Delete the event from the state by filtering out the event through its id
-    setEvents(events.filter(event => event._id !== deletedEventId));
+    setEventsOld(eventsOld.filter(event => event._id !== deletedEventId));
   };
 
   return (
@@ -32,7 +32,7 @@ const Home = ({ content }) => {
       <Header />
       <h1>Home</h1>
       <div className="row row-cols-1 row-cols-md-3 g-4 mx-0 mb-2">
-        {events.map((event) => (
+        {eventsOld.map((event) => (
           <Event
             key={event._id}
             event={event}
