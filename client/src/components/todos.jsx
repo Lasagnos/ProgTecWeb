@@ -20,8 +20,8 @@ function Todos() {
       .catch(error => console.error('Error fetching todos:', error));
   }, []);
 
-
-  const handleSubmit = (event) => { // Create a new todo
+  // Create a new todo
+  const handleSubmit = (event) => { 
     event.preventDefault(); // Avoid page refresh
 
     axios.post('http://localhost:5000/api/todos', { todo, dueDate })  // Send the todo and due date to the server
@@ -33,7 +33,7 @@ function Todos() {
       .catch(error => console.error('Error creating todo:', error.response));
   };
 
-
+  // Delete the selected todo
   const handleClear = (id) => {
     axios.delete(`http://localhost:5000/api/todos/${id}`)
       .then(() => {
@@ -43,6 +43,7 @@ function Todos() {
       .catch(error => console.error('Error deleting todo:', error));
   };
 
+  // Deletes all todos (of the current user)
   const handleClearAll = () => {
     const userId = cookies.user.id; // Get the user's ID from the cookies. Should be always available
   
@@ -53,7 +54,7 @@ function Todos() {
       .catch(error => console.error('Error deleting all todos:', error));
   };
 
-
+  // Toggles completion of todos
   const handleCheckboxChange = (event, id) => {
     const completed = event.target.checked; // Get the 'checked' status
 
@@ -65,6 +66,7 @@ function Todos() {
       .catch(error => console.error('Error updating todo:', error));
   };
 
+  // Gives todos their color based on their due date (overdue, today, pending soon, default, completed)
   const getTodoColor = (todo) => {
     if (todo.completed) { // Completed todos are green
       return 'bg-success';
@@ -75,15 +77,17 @@ function Todos() {
     const now = new Date(timeMachineDate);
     now.setHours(0, 0, 0, 0); // Get the current time
   
-    const threeDaysFromNow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3); // Get the date of three days from now
+    const threeDaysFromNow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 4);
   
     if (dueDate < now) {  // Overdue todos are black
       return 'bg-dark';
-    } else if (dueDate < threeDaysFromNow) {  // Todos pending soon (span 3 days) are yellow
+    } else if (dueDate.getTime() === now.getTime()) {  // Todos expiring today are red
+      return 'bg-danger';
+    } else if (dueDate < threeDaysFromNow) {  // Todos pending soon (3 days from now) are yellow
       return 'bg-warning';
     }
   
-    return '';  // Default color
+    return '';  // Default 'color'
   };
 
 
@@ -92,28 +96,27 @@ function Todos() {
     <Header />
     <div className="container">
 
-    <h2>Add Todo</h2>
+      <h2 className='text-center text-md-start'>Add Todo</h2>
 
-    <form onSubmit={handleSubmit} className="mb-3">
-      <div className="row align-items-center">
-        <div className="col-md-5 mb-3">
-          <label htmlFor="todo" className="form-label">Todo:</label>
-          <input id="todo" type="text" className="form-control" value={todo} onChange={e => setTodo(e.target.value)} required />
+      <form onSubmit={handleSubmit} className="mb-5">
+        <div className="row align-items-center text-center text-md-start">
+          <div className="col-md-5 mb-3">
+            <label htmlFor="todo" className="form-label">Todo:</label>
+            <input id="todo" type="text" className="form-control" value={todo} onChange={e => setTodo(e.target.value)} required />
+          </div>
+          <div className="col-md-5 mb-3">
+            <label htmlFor="dueDate" className="form-label">Due Date:</label>
+            <input id="dueDate" type="date" className="form-control" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
+          </div>
+          <div className="col-md-2 d-flex align-items-center justify-content-center justify-content-md-end">
+            <button type="submit" className="btn btn-primary">
+              <i className="fa fa-plus" aria-hidden="true"></i> Create Todo
+            </button>
+          </div>
         </div>
-        <div className="col-md-5 mb-3">
-          <label htmlFor="dueDate" className="form-label">Due Date:</label>
-          <input id="dueDate" type="date" className="form-control" value={dueDate} onChange={e => setDueDate(e.target.value)} required />
-        </div>
-        <div className="col-md-2 d-flex align-items-center justify-content-end">
-          <button type="submit" className="btn btn-primary">
-            <i className="fa fa-plus" aria-hidden="true"></i> Create Todo
-          </button>
-        </div>
-      </div>
-    </form>
+      </form>
 
-      <h2>Current Todos <button type="button" className="btn btn-danger ms-2" onClick={handleClearAll}>Clear All</button></h2>
-      {/* {<p>Click on the checkbox to mark an activity as completed, or click on the 'x' to delete it.</p>} */}
+      <h2 className='text-center text-md-start'>Current Todos <button type="button" className="btn btn-danger ms-2" onClick={handleClearAll}>Clear All</button></h2>
       
       {todos.sort((a, b) => {   // Sorts the todos
         // Sort by completion first
@@ -126,8 +129,8 @@ function Todos() {
       }).map(todo => {
         const todoColor = getTodoColor(todo);  // Get the color for the todo
         return (
-          // Add the color to the specific todo, and add text-white if overdue or completed
-          <div key={todo._id} className={`card mb-3 ${todoColor} ${todoColor === 'bg-dark' || todoColor === 'bg-success' ? 'text-white' : ''}`}>
+          // Add the color to the specific todo, and add text-white for readability to dark backgrounds
+          <div key={todo._id} className={`card mb-3 ${todoColor} ${todoColor === 'bg-dark' || todoColor === 'bg-success' || todoColor === 'bg-danger' ? 'text-white' : ''}`}>
             <div className="card-body">
               <div className="row">
 
@@ -141,7 +144,7 @@ function Todos() {
                   <div className="d-flex align-items-center mx-2">{new Date(todo.dueDate).toLocaleDateString()}</div>  {/* Due date */}
                   <input type="checkbox" data-bs-toggle="tooltip" title="Mark as completed" checked={todo.completed} onChange={e => handleCheckboxChange(e, todo._id)} />  {/* Completed checkbox */}
 
-                  <span role="button" tabIndex="0" className="fas fa-times text-danger ms-3"
+                  <span role="button" tabIndex="0" className={`fas fa-times ${todoColor === 'bg-danger' ? 'text-dark' : 'text-danger'} ms-3`}
                     onClick={() => handleClear(todo._id)}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ')
                       {e.preventDefault();

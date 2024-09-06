@@ -14,7 +14,7 @@ exports.getTodo = (req, res) => {
             if (!todo) {
                 return res.status(404).json({ message: 'Todo not found' });
             }
-            res.json(todo); // Send the todo in the response
+            res.json(todo);
         })
         .catch(err => res.status(500).json({ error: err.message }));
 }
@@ -30,7 +30,7 @@ exports.createTodo = async (req, res) => {
       });
       const savedTodo = await newTodo.save(); 
 
-      res.json(savedTodo);  // Send the saved todo in the response
+      res.json(savedTodo);
   } catch (err) {
       res.status(500).json({ error: err.message });
   }
@@ -44,7 +44,7 @@ exports.updateTodo = (req, res) => {
       if (!todo) {
         return res.status(404).json({ message: 'Todo not found' });
       }
-      res.json(todo); // Send the new, modified todo in the response
+      res.json(todo);
     })
     .catch(err => res.status(500).json({ error: err.message }));
 }
@@ -56,7 +56,7 @@ exports.completeTodo = (req, res) => {
       if (!todo) {
         return res.status(404).json({ message: 'Todo not found' });
       }
-      res.json(todo); // Send the new, modified todo in the response
+      res.json(todo);
     })
     .catch(err => res.status(500).json({ error: err.message }));
 };

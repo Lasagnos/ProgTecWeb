@@ -26,7 +26,7 @@ const PrivateRoute = ({ children }) => {
   return cookies.user ? children : <Navigate to="/login" />;
 };
 
-const privateRoutes = [ //Routes accessible only after login
+const privateRoutes = [ //Routes accessible only after login (all of them except login and register)
   { path: "/", element: <Home /> }, // Home
   { path: "/calendar", element: <Calendar /> }, // Calendar page
   { path: "/event/write", element: <EventWrite /> }, // Add a new event

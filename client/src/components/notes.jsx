@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useTimeMachine } from './contexts/timeMachineContext';
 import ReactMarkdown from 'react-markdown';
+import { truncateContent, truncateCategories, formatDate } from './utilities/utilityFunctions';
 
 import Footer from './partials/footer';
 import Header from './partials/header';
@@ -11,7 +12,7 @@ import Header from './partials/header';
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
-  const [sortCriteria, setSortCriteria] = useState('lastModified');
+  const [sortCriteria, setSortCriteria] = useState('lastModified'); //default sort criteria
   const [sortOrder, setSortOrder] = useState('desc');
   const navigate = useNavigate();
   const { timeMachineDate } = useTimeMachine();
@@ -60,7 +61,6 @@ const Notes = () => {
 
   const handleCreateNew = () => {
     navigate('/notes/write');
-    //handleSort(sortCriteria, sortOrder, notes);  // sort notes after creating a new note
   };
 
   const handleModify = (id) => {
@@ -82,6 +82,7 @@ const Notes = () => {
         .catch(error => console.error('Error duplicating note:', error));
   };
 
+  // Deletes the note
   const handleDelete = (id) => {
     axios.delete(`http://localhost:5000/api/notes/${id}`)
       .then(() => {
@@ -92,22 +93,7 @@ const Notes = () => {
   };
 
 
-  /* UTILITY FUNCTIONS */
-
-  const truncateContent = (content, maxLength) => {
-    return content.length > maxLength ? `${content.substring(0, maxLength)}...` : content;
-  };
-
-  const truncateCategories = (categories, maxLength) => {
-    const categoriesText = categories.join(', ');
-    return categoriesText.length > maxLength ? `${categoriesText.substring(0, maxLength)}...` : categoriesText;
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
-
+  // Toggle the sort direction (asc/desc)
   const toggleSortOrder = () => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     handleSort(sortCriteria, newOrder, notes);

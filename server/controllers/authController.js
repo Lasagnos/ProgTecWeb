@@ -12,7 +12,7 @@ exports.register = async (req, res) => {
   if (existingUser) {
     res.status(400).json({ error: 'A user with this username already exists' });
   } else {
-    // If not, create a new user
+    // If not, create it
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
     const user = new User({ username, password: hashedPassword });
     await user.save();

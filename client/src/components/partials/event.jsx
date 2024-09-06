@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-//import { formatCustomFrequency } from './utilities/utilityFunctions';
 
 const Event = ({ event, onEventDelete }) => {
   axios.defaults.withCredentials = true;
@@ -23,11 +22,6 @@ const Event = ({ event, onEventDelete }) => {
       .catch(error => console.error('Error deleting event:', error));
   };
 
-  // // Opens the event. Same as handleEditClick, maybe change in the future
-  // const handleCardBodyClick = () => {
-  //   navigate(`/event/write/${event._id}`);
-  // };
-
   const truncateText = (text, max) => {  // Utility function to truncate text and add '...'
     return text.length > max ? `${text.substring(0, max)}...` : text;
   };
@@ -39,7 +33,6 @@ const Event = ({ event, onEventDelete }) => {
         <div className={`card-body ${isHovered ? "bg-light" : ""}`} 
           onMouseEnter={() => setIsHovered(true)} 
           onMouseLeave={() => setIsHovered(false)} 
-          // onClick={handleCardBodyClick}
         >
         <h5 className="card-title mb-2">{truncateText(event.title, 50)}</h5>
 

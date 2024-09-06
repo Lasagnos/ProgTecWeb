@@ -9,4 +9,7 @@ router.post('/start-session', pomodoroController.startSession);
 // Update an existing pomodoro session
 router.patch('/update-session/:id', pomodoroController.updateSession);
 
+// Get the last pomodoro session (added for home component)
+router.get('/last-session', pomodoroController.getLastSession);
+
 module.exports = router;

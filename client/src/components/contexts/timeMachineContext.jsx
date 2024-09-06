@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// The timemachine is handled by a context provider that wraps the entire app.
+// The timemachine is on a context for the entire app
 const TimeMachineContext = createContext();
-export const useTimeMachine = () => useContext(TimeMachineContext);
+export const useTimeMachine = () => useContext(TimeMachineContext); // What to import
 
 
 export const TimeMachineProvider = ({ children }) => {
-  // Initialize the timeMachineDate with the localStorage's value, or if absent the current system datetime
+  // Initialize the timeMachineDate's state with the already present localStorage value
+  // If absent, use the current system datetime
   const [timeMachineDate, setTimeMachineDate] = useState(() => {
     const savedDate = localStorage.getItem('timeMachineDate');
     return savedDate ? new Date(savedDate) : new Date();
@@ -17,7 +18,7 @@ export const TimeMachineProvider = ({ children }) => {
     const interval = setInterval(() => {
       setTimeMachineDate((prevDate) => {
         const newDate = new Date(prevDate.getTime() + 1000);
-        localStorage.setItem('timeMachineDate', newDate);
+        localStorage.setItem('timeMachineDate', newDate); // Save the changed date to localStorage
         return newDate;
       });
     }, 1000);
@@ -35,10 +36,10 @@ export const TimeMachineProvider = ({ children }) => {
   const changeTimeMachineDate = (date) => {
     const newDate = new Date(date);
     if (isNaN(newDate.getTime())) { // Safeguard
-      //console.error('Invalid date!');
+      //console.error('DEBUG - Invalid date!');
       return;
     }
-    localStorage.setItem('timeMachineDate', newDate); // Save the changed date to localStorage
+    localStorage.setItem('timeMachineDate', newDate);
     setTimeMachineDate(newDate);
   };
 

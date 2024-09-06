@@ -64,8 +64,7 @@ const EventWrite = () => {
         try {
           const response = await axios.get(`http://localhost:5000/api/event/${id}`);
           const eventData = response.data;  // Get the event data from the response
-
-          console.log(eventData); // DEBUG
+          //console.log(eventData); // DEBUG
 
           const startDateTime = new Date(eventData.start);  // Convert to Date objects
           const endDateTime = new Date(eventData.end);
@@ -120,8 +119,8 @@ const EventWrite = () => {
   useEffect(() => {
     if (event.customFrequency.type === 'monthly_weekday') {
       const currDate = new Date(event.startDate);
-      const nthWeekday = currDate.getDay(); // === 0 ? 6 : currDate.getDay() - 1; // The day of the week of the start date
-      const nthWeek = Math.ceil(currDate.getDate() / 7); // The week of the month of the start date
+      const nthWeekday = currDate.getDay();               // The day of the week of the start date      // === 0 ? 6 : currDate.getDay() - 1; 
+      const nthWeek = Math.ceil(currDate.getDate() / 7);  // The week of the month of the start date
       setEvent((prevEvent) => ({
         ...prevEvent,
         customFrequency: {
@@ -180,7 +179,7 @@ const EventWrite = () => {
     // if (frequency < 1) {  // Frequency must be a positive integer
     //   alert('Custom frequency must be at least 1.');
     //   return false;
-    // }  // No need - form now avoids values less than 1
+    // }  // No need - form now requires a min of 1
   
     switch (type) {
       case 'weekly':
@@ -257,7 +256,7 @@ const EventWrite = () => {
     });
   };
 
-  // Ensure default values are always included and cannot be deselected
+  // Ensure default values (the weekday/day/month of the starting date) are always included and cannot be deselected
   useEffect(() => {
     const defaultDayOfWeek = new Date(event.startDate).getDay() === 0 ? 6 : new Date(event.startDate).getDay() - 1;
     const defaultDayOfMonth = new Date(event.startDate).getDate();
@@ -603,6 +602,7 @@ const EventWrite = () => {
 
       <hr className="my-4" style={{ borderColor: 'gray' }} />
 
+
       <div className="mb-4 d-flex flex-column flex-lg-row align-items-center">
         <div className="me-3 mb-2 d-flex align-items-center flex-grow-1 justify-content-center">
           <label htmlFor="frequency" className="form-label me-2 mb-0">Frequency:</label>
@@ -644,6 +644,7 @@ const EventWrite = () => {
           </>
         )}
       </div>
+
 
       {/* Nested custom frequency form */}
       {event.frequency === 'custom' && (
@@ -742,8 +743,6 @@ const EventWrite = () => {
         <hr className="my-3" style={{ borderColor: 'gray' }} />
         </>
       )}
-
-
       
 
       <div className="d-flex justify-content-center my-4">

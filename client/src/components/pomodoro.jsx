@@ -3,11 +3,10 @@ import axios from 'axios';
 import { useCookies } from 'react-cookie';
 import Footer from './partials/footer';
 import Header from './partials/header';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { formatTime } from './utilities/utilityFunctions';
 import ProgressBar from 'react-bootstrap/ProgressBar';
-import { Toast } from 'bootstrap'; // Added import for Toast
-
-// The pomodoro timer does not use the time machine! It uses the system time to count the time passed.
+import { Toast } from 'bootstrap';
+// The pomodoro timer does not need the time machine, it counts the time passed normally
 
 function PomodoroTimer() {
     axios.defaults.withCredentials = true;
@@ -53,7 +52,7 @@ function PomodoroTimer() {
         });
 
         // Create the session object with the initial data
-        // It will hold more information than mongoDB
+        // It will hold more fields than mongoDB
         const sessionData = {   
             ...res.data, 
             timer: initialTimer,
@@ -101,7 +100,7 @@ function PomodoroTimer() {
             
             // Reset all the current states to default
             setSession(null);
-            // setPomodoroTime(30); // Let's keep the form's input values!
+            // setPomodoroTime(30); // Let's keep the form input values!
             // setRestTime(5);
             // setRepetitions(5);
             // setAvailableHours(0);
@@ -199,15 +198,6 @@ function PomodoroTimer() {
             return () => clearInterval(interval);
         }
     }, [timer, isRunning, isPomodoro, pomodoroTime, restTime, repetitions, session, updateSession, currentRepetition, workTime]);
-
-
-    // Utility function to convert seconds into 'XX minutes and XX seconds' format
-    const formatTime = (timeInSeconds) => {
-        const minutes = Math.floor(timeInSeconds / 60);
-        const seconds = Math.round(timeInSeconds % 60);
-        // We use padStart to add a 0 if the seconds are less than 10
-        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    };
 
 
     /* TIME PROPOSAL HANDLING */
@@ -348,7 +338,7 @@ function PomodoroTimer() {
     useEffect(() => {
         let terminationTimeout;
         if (session && !isRunning && pauseTime) {
-            //console.log('paused!')
+            //console.log('paused!')    // DEBUG
             const now = Date.now();
             
             const elapsedMinutes = (now - pauseTime) / 1000 / 60;   // Minutes since having been paused
@@ -387,7 +377,7 @@ function PomodoroTimer() {
 
         <div className="container text-center">
         {sessionDetails ? (
-            <div className="card my-5">
+            <div className="card my-5 mx-auto w-100 w-md-75">
                 <div className="card-header">
                     <h1>Session Details</h1>
                 </div>

@@ -2,10 +2,11 @@ import { addDays, addWeeks, addMonths, addYears } from 'date-fns';
 
 /* Utility to handle timezone offset */
 
+// ISO string example: 2024-08-31T12:00:00.000Z
 export const toLocalISOString = (date) => {
     const offset = date.getTimezoneOffset() * 60000; // Get the offset in milliseconds
-    const adjustedDate = new Date(date.getTime() - offset); // Get the correct date
-    return adjustedDate.toISOString().slice(0, 16);
+    const adjustedDate = new Date(date.getTime() - offset); // Get the corrected date
+    return adjustedDate.toISOString().slice(0, 16); // Return without seconds and milliseconds
 };
 
 
@@ -15,9 +16,9 @@ export const toLocalISOString = (date) => {
 const getNthWeekdayOfMonth = (date, nth, weekday) => {
   // Get the first day of the month in question
   const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1); 
-  // Get the first weekday of the month (add the difference between the desired weekday and the first weekday of the month)
+  // Get the first wanted weekday of the month (adding the difference to the weekday of the 1st day)
   const firstWeekday = new Date(firstDayOfMonth.setDate(firstDayOfMonth.getDate() + ((7 + weekday - firstDayOfMonth.getDay()) % 7))); 
-  // Get the nth occurrence of the weekday (add the difference between the desired nth and the first occurrence)
+  // Get the nth occurrence of the weekday (adding the difference between to the first occurrence)
   const nthWeekday = new Date(firstWeekday.setDate(firstWeekday.getDate() + (nth - 1) * 7));  // nth - 1 because the first occurrence is the first weekday of the month
   // Fix the hour and minute of the date
   nthWeekday.setHours(date.getHours());
@@ -37,7 +38,7 @@ const getNthWeekdayOfMonth = (date, nth, weekday) => {
 
 // Utility to get the number of days in a month
 const getDaysInMonth = (month, year) => {
-  return new Date(year, month + 1, 0).getDate();  // The 0th day of the next month is the last day of the current month
+  return new Date(year, month + 1, 0).getDate();  // The '0th' day of the next month is the last day of the current month
 };
 
 
@@ -84,16 +85,6 @@ export const expandRecurringEvents = (events, timeMachineDate) => {
         };
         expandedEvents.push(newEvent);
       }
-
-      // if (event.frequency !== 'custom' || (event.customFrequency && 
-      //   (event.customFrequency.type === 'daily' || event.customFrequency.type === 'monthly_weekday'))) {
-      //   occurrenceCycleCount++;
-      // } else if ((event.customFrequency.type === 'weekly' && event.customFrequency.daysOfWeek[event.customFrequency.daysOfWeek.length - 1] === originalWeekday) ||
-      //           (event.customFrequency.type === 'monthly' && event.customFrequency.daysOfMonth[event.customFrequency.daysOfMonth.length - 1] === originalDay) ||
-      //           (event.customFrequency.type === 'yearly' && event.customFrequency.monthsOfYear[event.customFrequency.monthsOfYear.length - 1] === currentOccurrence.getMonth())) {
-      //     // If the last day of the custom frequency is reached, we increment the cycle count
-      //     occurrenceCycleCount++;
-      // }
       
       lastOccurrenceEnd = newEventEnd;  // Save the last event's end date
 
@@ -155,7 +146,6 @@ export const expandRecurringEvents = (events, timeMachineDate) => {
               // If it's a new week, add the remaining weeks
               if (nextDayOfWeek === daysOfWeek[0]) {
                 currentOccurrence = addWeeks(currentOccurrence, event.customFrequency.frequency - 1);
-                console.log(currentOccurrence);
                 occurrenceCycleCount++;
               }
               
@@ -228,7 +218,7 @@ export const expandRecurringEvents = (events, timeMachineDate) => {
           return;
         }
 
-        // Skip if the occurrence is after the time machine date + 10 years // +1 day: .setDate(new Date(timeMachineDate).getDate() + 1)) break;
+        // Skip if the occurrence is after the time machine date + 10 years   // +1 day: .setDate(new Date(timeMachineDate).getDate() + 1)) break;
         if (new Date(currentOccurrence) > new Date(timeMachineDate).setFullYear(new Date(timeMachineDate).getFullYear() + 10)) break;
         if (stopDate && currentOccurrence > stopDate) break;  // Stop if the current occurrence is after the stop date
         if (stopNumber && occurrenceCycleCount >= stopNumber) break; // Stop if current occurence exceeds the stop number
@@ -240,7 +230,7 @@ export const expandRecurringEvents = (events, timeMachineDate) => {
 };
 
 
-// For rendering monthly_weekdays
+// Quick util for rendering monthly_weekdays
 const getOrdinalSuffix = (number) => {
   switch (number) {
     case 1:
@@ -294,4 +284,31 @@ export const formatCustomFrequency = (customFrequency) => {
     default:
       return 'custom';
   }
+};
+
+
+/* Utilities for the notes page */
+
+// Truncations
+export const truncateContent = (content, maxLength) => {
+  return content.length > maxLength ? `${content.substring(0, maxLength)}...` : content;
+};
+export const truncateCategories = (categories, maxLength) => {
+  const categoriesText = categories.join(', ');
+  return categoriesText.length > maxLength ? `${categoriesText.substring(0, maxLength)}...` : categoriesText;
+};
+// From ISO string to locale string
+export const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleString();
+};
+
+/* Utilities for the pomodoro timer */
+
+// Utility function to convert seconds into 'XX minutes and XX seconds' format
+export const formatTime = (timeInSeconds) => {
+  const minutes = Math.floor(timeInSeconds / 60);
+  const seconds = Math.round(timeInSeconds % 60);
+  // We use padStart to add a 0 if the seconds are less than 10
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };

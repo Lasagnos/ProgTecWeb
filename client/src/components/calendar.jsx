@@ -5,7 +5,7 @@ import { useTimeMachine } from './contexts/timeMachineContext';
 import Header from './partials/header';
 import Footer from './partials/footer';
 import { toLocalISOString, expandRecurringEvents } from './utilities/utilityFunctions';
-import Event from './event';
+import Event from './partials/event';
 
 const Calendar = () => {
   axios.defaults.withCredentials = true;
@@ -65,6 +65,8 @@ const Calendar = () => {
   }, [selectedDay, selectedMonth, selectedYear, events]);
 
 
+  // Utility functions
+
   // Get the number of days in a month
   const getDaysInMonth = (month, year) => {
     return new Date(year, month + 1, 0).getDate();  // The 0th day of the next month is the last day of the current month
@@ -76,6 +78,7 @@ const Calendar = () => {
     //return day
   };
 
+  
   // Handler for selecting a new day
   const handleDayClick = useCallback((day, monthOffset) => {
     setSelectedMonth((prevMonth) => {
@@ -103,7 +106,7 @@ const Calendar = () => {
   const renderDayCell = useCallback((day, monthOffset) => {
     const currentDate = toLocalISOString(new Date(selectedYear, selectedMonth + monthOffset, day)).split('T')[0];
     
-    // info flags
+    // info flags for highlighting the selected day and month
     const isSelectedDay = day === selectedDay && monthOffset === 0;
     const isCurrentMonth = monthOffset === 0;
     

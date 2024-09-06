@@ -9,7 +9,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const [, setCookie] = useCookies(['user']);
+  const [, setCookie] = useCookies(['user']); // user cookie
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Avoid page refresh
@@ -18,11 +18,10 @@ function Login() {
       const response = await axios.post('http://localhost:5000/api/login', { username, password }); // Pass the username and password to the server
       
       // Save the user data in a cookie
-      setCookie('user', response.data, { path: '/', sameSite: 'None', secure: false }); // problematic!
-      
+      setCookie('user', response.data, { path: '/', sameSite: 'None', secure: false }); // parameters becuase of http
+
       navigate('/');  // Redirect to home page after successful login
     } catch (error) {
-      //console.log(error.response.data); // DEBUG
       setErrorMessage('User does not exist or password is incorrect');
     }
   };
@@ -32,13 +31,12 @@ function Login() {
   };
 
   return (
-    <div className="container">
+    <div className="container text-center">
       <div className="row justify-content-center">
+        <h2  className="my-4">
+          Log in to your <br /><i className="fas fa-calendar"></i> SELFIE<br />acccount
+        </h2>
         <div className="col-4">
-          <h2 className="text-center">
-            Log in to your <i className="fas fa-calendar"></i> SELFIE acccount
-          </h2>
-
           {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}  {/* Show error message if login fails */}
           
           <form onSubmit={handleSubmit} className="mt-4">
@@ -52,6 +50,7 @@ function Login() {
             </div>
 
             <button type="submit" className="btn btn-primary">Login</button>
+
             <button type="button" onClick={handleRegister} className="btn btn-link">Register</button>
           </form>
         </div>

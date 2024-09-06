@@ -10,7 +10,7 @@ exports.startSession = async (req, res) => {
         await session.save();
         res.json(session);
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while starting the session' });
+        res.status(500).json({ error: 'An error occurred while starting the pomodoro session' });
     }
 };
 
@@ -27,6 +27,16 @@ exports.updateSession = async (req, res) => {
         await session.save();
         res.json(session);  // Return the updated session
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while updating the session' });
+        res.status(500).json({ error: 'An error occurred while updating the pomodoro session' });
+    }
+};
+
+// Get the last pomodoro session (added for home component), GET
+exports.getLastSession = async (req, res) => {
+    try {
+      const lastSession = await PomodoroSession.findOne({ user: req.user._id }).sort({ createdAt: -1 }).exec(); // Sort by createdAt in descending order
+      res.json(lastSession);
+    } catch (error) {
+      res.status(500).json({ error: 'An error occurred while fetching the last pomodoro session' });
     }
 };

@@ -35,7 +35,7 @@ exports.createNote = async (req, res) => {
             updatedAt: req.body.updatedAt,
             user: req.user._id
         });
-        //console.log(note);
+        //console.log(note);    // DEBUG
         const newNote = await note.save();
         res.status(201).json(newNote);
     } catch (error) {

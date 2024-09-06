@@ -8,13 +8,13 @@ const Footer = () => {
   const { timeMachineDate, changeTimeMachineDate } = useTimeMachine();
   const [isEditing, setIsEditing] = useState(false);  // If editing, shows the datetime input field
 
-  // Changes the datetime to the one selected by the user
+  // Changes the timemachine's datetime to the one selected by the user
   const handleDateChange = (event) => {
     changeTimeMachineDate(event.target.value);
     setIsEditing(false);
   };
 
-  // Resets the datetime to the current system datetime
+  // Resets the timemachine's datetime to the current system datetime
   const resetToCurrentDate = () => {
     changeTimeMachineDate(new Date());
   };
@@ -25,10 +25,16 @@ const Footer = () => {
         {isEditing ? (
           <input type="datetime-local" defaultValue={toLocalISOString(timeMachineDate)} onBlur={handleDateChange} autoFocus />
         ) : (
-          <p className="mb-0 text-light" onMouseEnter={(e) => e.target.classList.add('text-decoration-underline')} onMouseLeave={(e) => e.target.classList.remove('text-decoration-underline')} onClick={() => setIsEditing(true)}>{timeMachineDate.toLocaleString()}</p>
+          <p className="mb-0 text-light" 
+          onMouseEnter={(e) => e.target.classList.add('text-decoration-underline')} 
+          onMouseLeave={(e) => e.target.classList.remove('text-decoration-underline')} 
+          onClick={() => setIsEditing(true)}>{timeMachineDate.toLocaleString()}</p>
         )}
       </div>
-      <span className="mb-0 text-light" style={{ cursor: 'pointer' }} onMouseEnter={(e) => e.target.classList.add('text-decoration-underline')} onMouseLeave={(e) => e.target.classList.remove('text-decoration-underline')} onClick={resetToCurrentDate}>Reset Time Machine</span>
+      <span className="mb-0 text-light" style={{ cursor: 'pointer' }} 
+        onMouseEnter={(e) => e.target.classList.add('text-decoration-underline')} 
+        onMouseLeave={(e) => e.target.classList.remove('text-decoration-underline')} 
+        onClick={resetToCurrentDate}>Reset Time Machine</span>
     </footer>
   );
 };

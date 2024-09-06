@@ -4,13 +4,13 @@ const app = express();  //Express App
 const mongoose = require("mongoose");   // MongoDB interaction
 const path = require('path');   // Handles file paths
 const _ = require("lodash");    // Utility library
-const cors = require('cors');    // Cross-origin resource sharing middleware
+const cors = require('cors');    // 'Cross-origin resource sharing' middleware
 const passport = require("passport"); // Authentication middleware
 const LocalStrategy = require("passport-local").Strategy; // Local authentication strategy for Passport
 const bcrypt = require("bcrypt"); // Password hashing library
 const session = require('express-session'); // Session middleware for Express
 const MongoDBStore = require('connect-mongodb-session')(session); // MongoDB session store
-const crypto = require('crypto'); // Cryptographic library for generating random strings (built-in to Node.js)
+const crypto = require('crypto'); // Cryptographic library for generating random strings
 
 
 /* MIDDLEWARE */
@@ -48,7 +48,7 @@ app.use(session({
   cookie: {
     secure: false,  // problematic!
     sameSite: 'None', // problematic!
-    maxAge: 1000 * 60 * 60 * 24 // 1 day
+    maxAge: 1000 * 60 * 60 * 24 // 1-day expiration
   },
   store: store
 }));
@@ -66,7 +66,7 @@ passport.use(
     return done(null, user);
   })
 );
-// User serialization and deserialization. Used to store the user in the session
+// User 'serialization and deserialization'. Used to store the user in the session
 passport.serializeUser((user, done) => {
   done(null, user._id);
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
@@ -7,9 +7,15 @@ import { useTimeMachine } from '../contexts/timeMachineContext';
 const Header = () => {
   axios.defaults.withCredentials = true;
   const navigate = useNavigate();
-  const [cookies, , removeCookie] = useCookies(['user']);
+  const [cookies, , removeCookie] = useCookies(['user']); // USER COOKIE
   const { resetTimeMachineDate } = useTimeMachine();  // Time machine context to reset the datetime
   const username = cookies.user.username; // show username in the navbar
+
+  // Navbar toggle state, for moving elements on small screens
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false);  
+  const toggleNavbar = () => {
+    setIsNavbarOpen(!isNavbarOpen);
+  };
 
   const handleLogout = () => {
     axios.post('http://localhost:5000/api/logout')
@@ -23,13 +29,16 @@ const Header = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
+    <nav className="navbar navbar-expand-lg bg-body-tertiary text-center">
       <div className="container-fluid">
         <a className="navbar-brand" href="/"> 
           <i className="fas fa-calendar" aria-hidden="true"></i> SELFIE
         </a>
 
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <button className="navbar-toggler" type="button" 
+                data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" 
+                aria-controls="navbarNavDropdown" aria-expanded="false"
+                aria-label="Toggle navigation" onClick={toggleNavbar}>
           <span className="navbar-toggler-icon"></span>
         </button>
 
@@ -42,10 +51,6 @@ const Header = () => {
             <li className="nav-item">
               <a className="nav-link" href="/calendar">Calendar</a>
             </li>
-            
-            {/* <li className="nav-item">
-              <a className="nav-link" href="/event/write">Add New Event</a>
-            </li> */}
 
             <li className="nav-item">
               <a className="nav-link" href="/todos">Todos</a>
@@ -62,8 +67,8 @@ const Header = () => {
         </div>
 
 
-        {username &&  // Conditional rendering
-          <div className="ml-auto d-flex align-items-center">
+        {username &&  // Should always be true
+          <div className={`ml-auto d-flex align-items-center ${isNavbarOpen ? 'justify-content-center w-100' : 'justify-content-end'}`}>
             <span className="navbar-text mr-3">
               <i className="fas fa-user"></i> {username}
             </span>

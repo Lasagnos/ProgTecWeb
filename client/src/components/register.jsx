@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-// import { useCookies } from 'react-cookie';
 
 function Register() {
   const [username, setUsername] = useState('');
@@ -29,16 +28,15 @@ function Register() {
   };
 
   return (
-    <div className="container">
+    <div className="container text-center">
       <div className="row justify-content-center">
+        <h2 className="my-4">
+          Register to <br /> <i className="fas fa-calendar"></i> SELFIE !
+        </h2>
         <div className="col-4">
-          <h2 className="text-center">
-            Register to <i className="fas fa-calendar"></i> SELFIE !
-          </h2>
-
           {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}  {/* Show error message if registration fails */}
 
-          <form onSubmit={handleSubmit} className="mt-4">
+          <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="username" className="form-label">Username</label>
               <input type="text" id="username" className="form-control" value={username} onChange={(e) => setUsername(e.target.value)} required />

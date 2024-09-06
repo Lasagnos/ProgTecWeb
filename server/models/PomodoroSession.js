@@ -14,6 +14,6 @@ const PomodoroSessionSchema = new mongoose.Schema({
   sessionDuration: Number, // Total time in seconds
   workDuration: Number, // Work time in seconds
   workPercentage: Number,
-});
+}, { timestamps: true }); // Adds createdAt field (to get last session)
 
 module.exports = mongoose.model('PomodoroSession', PomodoroSessionSchema);

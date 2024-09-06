@@ -1,7 +1,8 @@
 /* App.css - The main CSS file for the app */
 
 /*
-Allows the footer to stick to the bottom of the page, even if the content is shorter than the screen height.
+Footer decoration.
+Allows it to stick to the bottom of the page, even if the content is shorter than the screen height.
 */
 
 body {
@@ -123,6 +124,7 @@ Adapted from https://loading.io/css/.
   font-size: 64px;  /* about the same size as the animations */
 }
 
+
 /*
 Calendar styling
 */
@@ -155,10 +157,20 @@ Calendar styling
   background-color: #0d6efd;  
 }
 
+
 /*
 EventWrite styling
 */
 
 .table td:hover:not(.bg-primary) { /* hover effect for unselected table cells */
   background-color: #f8f9fa;
+}
+
+
+/*
+Home styling
+*/
+
+.text-dark, .text-secondary { /* hover effect fade in/out */
+  transition: color 0.3s ease;
 }
