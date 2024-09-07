@@ -1,4 +1,4 @@
-### Progetto Tecnologie Web 2023/2024 Università di Bologna\
+## Progetto Tecnologie Web 2023/2024 Università di Bologna
 **Membri**: Angelo Greco\
 **Estensione**: Base (18-21)
 
@@ -6,7 +6,7 @@
 - Su /server, eseguire npx nodemon index.js
 - Su /client, eseguire npm start
 
-##### Informazioni:\
+#### Informazioni:
 Per il forntend è stato usato il framework React, e Bootstrap per lo stile.
 
 Ogni componente può essere raggiunta dalla home o dalla navbar. La timemachine è nel footer.
