@@ -18,7 +18,7 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    axios.post('http://localhost:5000/api/logout')
+    axios.post('http://localhost:8000/api/logout')
       .then(() => {
         removeCookie('user'); // Remove the cookies
         removeCookie('session');

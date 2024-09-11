@@ -38,7 +38,7 @@ const Calendar = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/event');
+        const response = await axios.get('http://localhost:8000/api/event');
         const events = response.data;
 
         const expandedEvents = expandRecurringEvents(events, timeMachineDateString);

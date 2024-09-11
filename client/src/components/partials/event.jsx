@@ -15,7 +15,7 @@ const Event = ({ event, onEventDelete }) => {
   };
 
   const handleDeleteClick = () => {
-    axios.delete(`http://localhost:5000/api/event/${event._id}`)
+    axios.delete(`http://localhost:8000/api/event/${event._id}`)
       .then(() => {
         onEventDelete(event._id); // update the parent's UI
       })

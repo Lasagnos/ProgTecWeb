@@ -48,7 +48,7 @@ const Notes = () => {
   // Load notes on component mount
   useEffect(() => {
     axios.defaults.withCredentials = true;
-    axios.get('http://localhost:5000/api/notes')
+    axios.get('http://localhost:8000/api/notes')
       .then(res => {
         // Fetches the notes and sorts them automatically
         handleSort(sortCriteria, sortOrder, res.data);
@@ -69,7 +69,7 @@ const Notes = () => {
 
   // Duplicates a note. Timestamps are separate.
   const handleDuplicate = (note) => {
-    axios.post('http://localhost:5000/api/notes/write', { ...note, _id: undefined })
+    axios.post('http://localhost:8000/api/notes/write', { ...note, _id: undefined })
         .then(response => {
             const clonedNote = response.data;
             //clonedNote._id = undefined;
@@ -84,7 +84,7 @@ const Notes = () => {
 
   // Deletes the note
   const handleDelete = (id) => {
-    axios.delete(`http://localhost:5000/api/notes/${id}`)
+    axios.delete(`http://localhost:8000/api/notes/${id}`)
       .then(() => {
         setNotes(notes.filter(note => note._id !== id)); // Remove the deleted note from the state
         //handleSort(sortCriteria, sortOrder, notes);

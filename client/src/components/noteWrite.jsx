@@ -38,7 +38,7 @@ const NoteWrite = () => {
     useEffect(() => {
         if (id) {
             // Fetch the note data if editing an existing note
-            axios.get(`http://localhost:5000/api/notes/${id}`)
+            axios.get(`http://localhost:8000/api/notes/${id}`)
                 .then(response => {
                     setNote({
                         ...response.data,
@@ -54,13 +54,13 @@ const NoteWrite = () => {
         e.preventDefault();
         if (id) {
           // Update existing note
-          await axios.put(`http://localhost:5000/api/notes/write/${id}`, {
+          await axios.put(`http://localhost:8000/api/notes/write/${id}`, {
             ...note,
             updatedAt: new Date(timeMachineDate) // Update the last updated date
           });
         } else {
           // Create new note
-          await axios.post('http://localhost:5000/api/notes/write', note);
+          await axios.post('http://localhost:8000/api/notes/write', note);
         }
         navigate('/notes');
     };

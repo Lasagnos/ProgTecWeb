@@ -18,12 +18,12 @@ const helmet = require('helmet'); // Security middleware
 /* MIDDLEWARE */
 
 // Enable CORS for all routes, and allow credentials (cookies)
-app.use(cors({ origin: 'http://localhost:5000', credentials: true }));
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 // Add middleware for parsing JSON, urlencoded data and serving static files
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use(express.static(path.join(__dirname, '../client/public')));
 
 // Use helmet to set 'CSP' header for security
 app.use(helmet({
@@ -118,14 +118,12 @@ app.use('/api/notes', ensureAuthenticated, notesRoutes);
 
 
 
-/* ALL ROUTES */  // Mostly debugs, to be removed
-// app.get('/api/test', (req, res) => {   // DEBUG
-//   res.json({ user: req.user });
-// });
-// The "catchall" handler: for any request that doesn't match one above, send back React's index.html file
-// app.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname+'/../client/public/index.html'));
-// });
+/* Serve static files from the React app */
+app.use(express.static(path.join(__dirname, '../client/build')));
+/* The "catchall" handler: for any request that doesn't match one above, send back React's index.html file */
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
 
 
 

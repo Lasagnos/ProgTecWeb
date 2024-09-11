@@ -62,7 +62,7 @@ const EventWrite = () => {
     const fetchEventData = async () => {
       if (id) { // Check if we are editing an existing event
         try {
-          const response = await axios.get(`http://localhost:5000/api/event/${id}`);
+          const response = await axios.get(`http://localhost:8000/api/event/${id}`);
           const eventData = response.data;  // Get the event data from the response
           //console.log(eventData); // DEBUG
 
@@ -444,9 +444,9 @@ const EventWrite = () => {
       let response; // Declared here to be used outside the try-catch block
 
       if (id) { // If there is an ID, update the existing event
-        response = await axios.put(`http://localhost:5000/api/event/write/${id}`, validatedEvent);
+        response = await axios.put(`http://localhost:8000/api/event/write/${id}`, validatedEvent);
       } else { // Otherwise, create the new event
-        response = await axios.post('http://localhost:5000/api/event/write', validatedEvent);
+        response = await axios.post('http://localhost:8000/api/event/write', validatedEvent);
       }
       if (response.status === 200) {
         navigate('/calendar');  // Navigate to the calendar page after the event is created or updated

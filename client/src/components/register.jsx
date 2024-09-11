@@ -14,7 +14,7 @@ function Register() {
     e.preventDefault(); // Avoid page refresh
 
     try {
-      await axios.post('http://localhost:5000/api/register', { username, password }); // Pass the username and password to the server
+      await axios.post('http://localhost:8000/api/register', { username, password }); // Pass the username and password to the server
 
       // ALTERNATIVE for immediate login:
       // // Set the user cookie to the username

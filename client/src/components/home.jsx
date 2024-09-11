@@ -53,7 +53,7 @@ const Home = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/event');
+        const response = await axios.get('http://localhost:8000/api/event');
         const events = response.data;
 
         const expandedEvents = expandRecurringEvents(events, timeMachineDateString);
@@ -87,7 +87,7 @@ const Home = () => {
   useEffect(() => {
     const fetchTodos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/todos');
+        const response = await axios.get('http://localhost:8000/api/todos');
         const todos = response.data;
     
         const now = new Date(timeMachineDateString);
@@ -136,7 +136,7 @@ const Home = () => {
   };
 
   const handleClear = (id) => {
-    axios.delete(`http://localhost:5000/api/todos/${id}`)
+    axios.delete(`http://localhost:8000/api/todos/${id}`)
       .then(() => {
         // Remove the todo from the state, filtering out the todo with the specified ID
         setTodos(currentTodos => currentTodos.filter(todo => todo._id !== id));
@@ -147,7 +147,7 @@ const Home = () => {
   const handleCheckboxChange = (event, id) => {
     const completed = event.target.checked; // Get the 'checked' status
 
-    axios.put(`http://localhost:5000/api/todos/${id}`, { completed })
+    axios.put(`http://localhost:8000/api/todos/${id}`, { completed })
       .then(response => {
         // Update the todo in the state (replace it with the updated one)
         // setTodos(currentTodos => currentTodos.map(todo => todo._id === id ? response.data : todo));
@@ -166,7 +166,7 @@ const Home = () => {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/notes');
+        const response = await axios.get('http://localhost:8000/api/notes');
         setNotes(response.data);
       } catch (error) {
         console.error('Error fetching notes:', error);
@@ -194,7 +194,7 @@ const Home = () => {
   useEffect(() => {
     const fetchLastSession = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/pomodoro/last-session');
+        const response = await axios.get('http://localhost:8000/api/pomodoro/last-session');
         setLastSession(response.data);
       } catch (error) {
         console.error('Error fetching last Pomodoro session:', error);

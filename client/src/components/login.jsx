@@ -15,7 +15,7 @@ function Login() {
     e.preventDefault(); // Avoid page refresh
   
     try {
-      const response = await axios.post('http://localhost:5000/api/login', { username, password }); // Pass the username and password to the server
+      const response = await axios.post('http://localhost:8000/api/login', { username, password }); // Pass the username and password to the server
       
       // Save the user data in a cookie
       setCookie('user', response.data, { path: '/', sameSite: 'None', secure: false }); // parameters becuase of http
