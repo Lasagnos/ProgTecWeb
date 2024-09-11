@@ -44,7 +44,7 @@ app.use(helmet({
 // const secretKeyforTesting = '';
 
 // Set the MongoDB URI        
-const MONGODB_URI = 'mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_SITE}/${process.env.DB_NAME}?authSource=admin&writeConcern=majority'; // || mongoURIforTesting;
+const MONGODB_URI = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_SITE}/${process.env.DB_NAME}?authSource=admin&writeConcern=majority`; // || mongoURIforTesting;
 //const MONGODB_URI = 'mongodb://site232431:ahB4ha7j@mongo_site232431/test?authSource=admin&writeConcern=majority';
 //console.log('MONGODB_URI: ', MONGODB_URI);
 
