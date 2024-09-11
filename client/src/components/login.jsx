@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import config from './utilities/config';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 
@@ -15,10 +16,10 @@ function Login() {
     e.preventDefault(); // Avoid page refresh
   
     try {
-      const response = await axios.post('http://localhost:8000/api/login', { username, password }); // Pass the username and password to the server
+      const response = await axios.post(`${config.apiBaseUrl}/login`, { username, password }); // Pass the username and password to the server
       
       // Save the user data in a cookie
-      setCookie('user', response.data, { path: '/', sameSite: 'None', secure: false }); // parameters becuase of http
+      setCookie('user', response.data, { path: '/', sameSite: 'None', secure: true }); // parameters changed on deplyment becuase of http
 
       navigate('/');  // Redirect to home page after successful login
     } catch (error) {

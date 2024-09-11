@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import config from './utilities/config';
 import { useNavigate } from 'react-router-dom';
 
 import { useTimeMachine } from './contexts/timeMachineContext';
@@ -48,7 +49,7 @@ const Notes = () => {
   // Load notes on component mount
   useEffect(() => {
     axios.defaults.withCredentials = true;
-    axios.get('http://localhost:8000/api/notes')
+    axios.get(`${config.apiBaseUrl}/notes`)
       .then(res => {
         // Fetches the notes and sorts them automatically
         handleSort(sortCriteria, sortOrder, res.data);
@@ -69,7 +70,7 @@ const Notes = () => {
 
   // Duplicates a note. Timestamps are separate.
   const handleDuplicate = (note) => {
-    axios.post('http://localhost:8000/api/notes/write', { ...note, _id: undefined })
+    axios.post(`${config.apiBaseUrl}/notes/write`, { ...note, _id: undefined })
         .then(response => {
             const clonedNote = response.data;
             //clonedNote._id = undefined;
@@ -84,7 +85,7 @@ const Notes = () => {
 
   // Deletes the note
   const handleDelete = (id) => {
-    axios.delete(`http://localhost:8000/api/notes/${id}`)
+    axios.delete(`${config.apiBaseUrl}/notes/${id}`)
       .then(() => {
         setNotes(notes.filter(note => note._id !== id)); // Remove the deleted note from the state
         //handleSort(sortCriteria, sortOrder, notes);

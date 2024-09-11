@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import config from './utilities/config';
 import { useCookies } from 'react-cookie';
 import { useTimeMachine } from './contexts/timeMachineContext';
 
@@ -15,7 +16,7 @@ function Todos() {
   const { timeMachineDate } = useTimeMachine();
 
   useEffect(() => { // Fetch the todos when the component is mounted
-    axios.get('http://localhost:8000/api/todos')
+    axios.get(`${config.apiBaseUrl}/todos`)
       .then(response => setTodos(response.data))
       .catch(error => console.error('Error fetching todos:', error));
   }, []);
@@ -24,7 +25,7 @@ function Todos() {
   const handleSubmit = (event) => { 
     event.preventDefault(); // Avoid page refresh
 
-    axios.post('http://localhost:8000/api/todos', { todo, dueDate })  // Send the todo and due date to the server
+    axios.post(`${config.apiBaseUrl}/todos`, { todo, dueDate })  // Send the todo and due date to the server
       .then(response => {
         setTodos(currentTodos => [...currentTodos, response.data]);  // Add the new todo to the state
         setTodo('');  // Clear the todo input
@@ -35,7 +36,7 @@ function Todos() {
 
   // Delete the selected todo
   const handleClear = (id) => {
-    axios.delete(`http://localhost:8000/api/todos/${id}`)
+    axios.delete(`${config.apiBaseUrl}/todos/${id}`)
       .then(() => {
         // Remove the todo from the state, filtering out the todo with the specified ID
         setTodos(currentTodos => currentTodos.filter(todo => todo._id !== id));
@@ -47,7 +48,7 @@ function Todos() {
   const handleClearAll = () => {
     const userId = cookies.user.id; // Get the user's ID from the cookies. Should be always available
   
-    axios.delete(`http://localhost:8000/api/todos/user/${userId}`)
+    axios.delete(`${config.apiBaseUrl}/todos/user/${userId}`)
       .then(() => {
         setTodos([]); // Clear the todos in the state
       })
@@ -58,7 +59,7 @@ function Todos() {
   const handleCheckboxChange = (event, id) => {
     const completed = event.target.checked; // Get the 'checked' status
 
-    axios.put(`http://localhost:8000/api/todos/${id}`, { completed })
+    axios.put(`${config.apiBaseUrl}/todos/${id}`, { completed })
       .then(response => {
         // Update the todo in the state, replacing said todo with the updated one
         setTodos(currentTodos => currentTodos.map(todo => todo._id === id ? response.data : todo));

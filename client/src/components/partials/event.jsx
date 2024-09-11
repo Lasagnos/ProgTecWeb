@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import config from './utilities/config';
 import { useNavigate } from 'react-router-dom';
 
 const Event = ({ event, onEventDelete }) => {
@@ -15,7 +16,7 @@ const Event = ({ event, onEventDelete }) => {
   };
 
   const handleDeleteClick = () => {
-    axios.delete(`http://localhost:8000/api/event/${event._id}`)
+    axios.delete(`${config.apiBaseUrl}/event/${event._id}`)
       .then(() => {
         onEventDelete(event._id); // update the parent's UI
       })

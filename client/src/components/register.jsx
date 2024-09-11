@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import config from './utilities/config';
 import { useNavigate } from 'react-router-dom';
 
 function Register() {
@@ -14,7 +15,7 @@ function Register() {
     e.preventDefault(); // Avoid page refresh
 
     try {
-      await axios.post('http://localhost:8000/api/register', { username, password }); // Pass the username and password to the server
+      await axios.post(`${config.apiBaseUrl}/register`, { username, password }); // Pass the username and password to the server
 
       // ALTERNATIVE for immediate login:
       // // Set the user cookie to the username

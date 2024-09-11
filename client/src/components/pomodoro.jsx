@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import config from './utilities/config';
 import { useCookies } from 'react-cookie';
 import Footer from './partials/footer';
 import Header from './partials/header';
@@ -40,7 +41,7 @@ function PomodoroTimer() {
         const initialTimer = pomodoroTime * 60;  // Initial timer value
 
         // Create a new session in the database with the initial data
-        const res = await axios.post('http://localhost:8000/api/pomodoro/start-session', {
+        const res = await axios.post(`${config.apiBaseUrl}/pomodoro/start-session`, {
             setPomodoroDuration: pomodoroTime,
             setRestDuration: restTime,
             setRepetitions: repetitions,
@@ -79,7 +80,7 @@ function PomodoroTimer() {
             const workPercentage = ((workTime / totalTime) * 100).toFixed(2);
 
             // Save the session details in the database
-            const res = await axios.patch(`http://localhost:8000/api/pomodoro/update-session/${session._id}`, {
+            const res = await axios.patch(`${config.apiBaseUrl}/pomodoro/update-session/${session._id}`, {
                 setPomodoroDuration: pomodoroTime,
                 setRestDuration: restTime,
                 setRepetitions: repetitions,

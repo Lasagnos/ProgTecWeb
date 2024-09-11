@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import config from './utilities/config';
 import { useNavigate } from 'react-router-dom';
 import { useTimeMachine } from './contexts/timeMachineContext';
 import Header from './partials/header';
@@ -38,7 +39,7 @@ const Calendar = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/event');
+        const response = await axios.get(`${config.apiBaseUrl}/event`);
         const events = response.data;
 
         const expandedEvents = expandRecurringEvents(events, timeMachineDateString);

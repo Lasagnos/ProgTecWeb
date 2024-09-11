@@ -12,7 +12,6 @@ const bcrypt = require("bcrypt"); // Password hashing library
 const session = require('express-session'); // Session middleware for Express
 const MongoDBStore = require('connect-mongodb-session')(session); // MongoDB session store
 //const crypto = require('crypto'); // Cryptographic library for generating random strings
-const helmet = require('helmet'); // Security middleware
 
 
 /* MIDDLEWARE */
@@ -23,17 +22,7 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 // Add middleware for parsing JSON, urlencoded data and serving static files
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '../client/public')));
-
-// Use helmet to set 'CSP' header for security
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"], // Default policy
-      imgSrc: ["'self'", "https://site232431.tw.cs.unibo.it"],  // Policy for loading images and icons
-    },
-  },
-}));
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Generate a secret key for the session (one-time only, currently stored in .env file)
 // const secretKey = crypto.randomBytes(64).toString('hex');
@@ -64,8 +53,8 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   cookie: {
-    secure: false,  // problematic!
-    sameSite: 'None', // problematic!
+    secure: true,     // false,  // changed after deployment
+    sameSite: 'None',
     maxAge: 1000 * 60 * 60 * 24 // 1-day expiration
   },
   store: store
@@ -117,9 +106,7 @@ const notesRoutes = require('./routes/notesRoutes');
 app.use('/api/notes', ensureAuthenticated, notesRoutes);
 
 
-
-/* Serve static files from the React app */
-app.use(express.static(path.join(__dirname, '../client/build')));
+// safeguard
 /* The "catchall" handler: for any request that doesn't match one above, send back React's index.html file */
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/build/index.html'));
