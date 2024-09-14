@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import config from './utilities/config';
+import config from '../utilities/config';
 import { useCookies } from 'react-cookie';
 import { useTimeMachine } from '../contexts/timeMachineContext';
 

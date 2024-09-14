@@ -19,10 +19,15 @@ function Login() {
       const response = await axios.post(`${config.apiBaseUrl}/login`, { username, password }); // Pass the username and password to the server
       
       // Save the user data in a cookie
-      setCookie('user', response.data, { path: '/', sameSite: 'None', secure: true }); // parameters changed on deplyment becuase of http
+      const isHttps = window.location.protocol === 'https:';
+      setCookie('user', response.data, { path: '/', secure: isHttps, sameSite: 'Lax' }); // parameters change based on protocol
 
-      navigate('/');  // Redirect to home page after successful login
-    } catch (error) {
+      // Redirect to home page after successful login
+      if (response.status === 200) {
+        navigate('/');
+      }
+      
+    } catch (error) { // If the login fails (return code 400)
       setErrorMessage('User does not exist or password is incorrect');
     }
   };

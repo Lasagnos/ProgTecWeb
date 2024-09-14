@@ -17,7 +17,10 @@ const MongoDBStore = require('connect-mongodb-session')(session); // MongoDB ses
 /* MIDDLEWARE */
 
 // Enable CORS for all routes, and allow credentials (cookies)
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({
+  origin: ['https://site232431.tw.cs.unibo.it', 'http://site232431.tw.cs.unibo.it'],
+  credentials: true
+}));
 
 // Add middleware for parsing JSON, urlencoded data and serving static files
 app.use(express.json());
@@ -47,14 +50,18 @@ const store = new MongoDBStore({
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }); // Properties to use new node.js engines
 //const db = mongoose.connection;
 
+// .env info
+const isProduction = process.env.NODE_ENV === 'production';     // or deployment
+const isHttps = process.env.PROTOCOL === 'https';               // or http
+
 // Enable express-session, a session middleware for Express
 app.use(session({
-  secret: process.env.SESSION_SECRET  || secretKeyforTesting,
+  secret: process.env.SESSION_SECRET,  // || secretKeyforTesting,
   resave: false,
   saveUninitialized: true,
   cookie: {
-    secure: true,     // false,  // changed after deployment
-    sameSite: 'None',
+    secure: isHttps && isProduction,         //Secure only if in production and HTTPS
+    sameSite: 'Lax',    //isProduction ? 'None' : 'Lax',        // None in production, Lax in development
     maxAge: 1000 * 60 * 60 * 24 // 1-day expiration
   },
   store: store

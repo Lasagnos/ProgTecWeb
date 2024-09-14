@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import config from './utilities/config';
+import config from '../utilities/config';
 import { useNavigate } from 'react-router-dom';
 
 const Event = ({ event, onEventDelete }) => {

@@ -27,7 +27,7 @@ exports.login = (req, res, next) => {
 
         if (err) { return next(err); }
 
-        if (!user) { return res.redirect('/login'); }   // Redirect to login page if the user is not authenticated
+        if (!user) { return res.status(400).json({ error: 'Invalid username or password' }); }  // If the user is not found
 
         req.logIn(user, function(err) { // Log in the authenticated user
             if (err) { return next(err); }  

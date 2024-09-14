@@ -129,7 +129,7 @@ const Notes = () => {
         {notes.map(note => (
           <div key={note._id} className="card mb-3">
             <div className="card-body">
-              <h4 className="card-title">{note.title}</h4>
+              <h4 className="card-title">{truncateContent(note.title, 50)}</h4>
               <hr className="my-3" style={{ borderColor: 'gray' }} />
               <div className="card-text">
                 <ReactMarkdown>{truncateContent(note.content, 250)}</ReactMarkdown>
